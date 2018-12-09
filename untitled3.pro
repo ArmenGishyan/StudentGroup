@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets
+QT       += core gui widgets network
 QT       += sql
 
 TARGET = untitled3
@@ -24,11 +24,29 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
-        main.cpp \
-        mainwindow.cpp \
+    studentgroupdb.cpp \
+    searchdialogbox.cpp \
+    admindbox.cpp \
+    main.cpp \
+    mainwindow.cpp \
+    groupsview.cpp \
+    chosecitydelegate.cpp \
+    headermenu.cpp \
+    quickmenu.cpp \
+    lineediticon.cpp \
+    emailwriter.cpp
 
 HEADERS += \
-        mainwindow.h \
+    studentgroupdb.h \
+    searchdialogbox.h \
+    mainwindow.h \
+    admindbox.h \
+    groupsview.h \
+    chosecitydelegate.h \
+    headermenu.h \
+    quickmenu.h \
+    lineediticon.h \
+    emailwriter.h
 
 FORMS += \
         mainwindow.ui

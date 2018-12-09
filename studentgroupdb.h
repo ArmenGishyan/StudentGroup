@@ -1,18 +1,25 @@
 #ifndef STUDENTGROUPDB_H
 #define STUDENTGROUPDB_H
 #include <QtSql/QSqlDatabase>
+#include <QString>
+#include <QSqlQuery>
+#include <QSqlTableModel>
+#include <memory>
+#include "searchdialogbox.h"
 
-class SGDB
+class QTableView;
+class StudentGroupDB
 {
 public:
-    SGDB(QString databaseType, QString host, QString name, QString userName, QString password);
-    m_db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setHostName("LOCALHOST");
-    db.setDatabaseName("StudentGroup");
-    db.setUserName("postgre");
-    db.setPassword("Armen");
+    bool execQuery(const QString& queryStr);
+    std::shared_ptr<QTableView> getTable(const QString& tableName) const;
+    QStringList getAllTables() const;
+    static QSet<QString> getGroupNames();
+    QSqlTableModel* findStudent(SearchResult sReault);
+    static QSqlDatabase getDatabase();
+
 private:
-    QSqlDatabase m_db;
+    static QSqlDatabase m_db;
 };
 
 #endif // STUDENTGROUPDB_H
