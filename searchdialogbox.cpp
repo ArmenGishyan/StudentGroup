@@ -60,16 +60,19 @@ SearchDialogBox::SearchDialogBox(QWidget *parrent):QWidget(parrent)
 {
     QVBoxLayout* searchLayout = new QVBoxLayout;
     QVBoxLayout* scoreSlider = new QVBoxLayout;
+    scoreSlider->setSpacing(0);
+    //scoreSlider->se
     m_lowsScore = new SpinSliderWidget("LowScore", 0, 100, this);
     m_highScore = new SpinSliderWidget("HighScore", 0, 100, this);
     scoreSlider->addWidget(m_lowsScore);
     scoreSlider->addWidget(m_highScore);
+    setFixedWidth(500);
 
     QFormLayout* nameSurname = new QFormLayout;
     m_nameBox = new QLineEdit(this);
     m_surnameBox = new QLineEdit(this);
-    nameSurname->addRow(QObject::tr("Student's name"), m_nameBox);
-    nameSurname->addRow(QObject::tr("Student's surname"), m_surnameBox);
+    nameSurname->addRow(QObject::tr("Student's name \t"), m_nameBox);
+    nameSurname->addRow(QObject::tr("Student's surname \t"), m_surnameBox);
 
     QHBoxLayout* checkBoxes = new QHBoxLayout;
     m_workedOrNot = new QCheckBox("Worked Or Not", this);

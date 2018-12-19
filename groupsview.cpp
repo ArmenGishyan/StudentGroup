@@ -20,6 +20,7 @@
 #include <QDialogButtonBox>
 #include <QVariant>
 #include <QScrollBar>
+#include <QSqlRecord>
 #include <algorithm>
 #include <QDate>
 
@@ -27,26 +28,24 @@ GroupsView::GroupsView(QSqlTableModel* model, QString Name, QWidget *parent, QAb
 {
     QStringList cities = {"Yerevan", "Ararat", "Armavir", "Aragatsotn", "Gegharkunik", "Kotayk", "Lori", "Shirak", "Syunik", "Tavush", "Vayots Dzor", "Artsakh"};
     QStringList workStatus = {"Yes", "No"};
-    //ComboBoxDelegate* cityName = new ComboBoxDelegate(cities,this);
-    //ComboBoxDelegate* jobStatus = new ComboBoxDelegate(workStatus,this);
-    //SpinBoxDelegate* score = new SpinBoxDelegate(0, 100, this);
-    //ComboBoxDelegate* groupName = new ComboBoxDelegate(QStringList()<<Name<<"",this);
+    ComboBoxDelegate* cityName = new ComboBoxDelegate(cities,this);
+    ComboBoxDelegate* jobStatus = new ComboBoxDelegate(workStatus,this);
+    SpinBoxDelegate* score = new SpinBoxDelegate(0, 100, this);
+    ComboBoxDelegate* groupName = new ComboBoxDelegate(QStringList()<<Name<<"",this);
     m_groupName = new QPushButton(Name, this);
     m_groupTable = new QTableView(this);
     m_groupTable->setModel(model);
     m_groupTable->setEditTriggers(editRole);
     QDate minDate(1950,01,01);
-    DateDelegate* birthDate = new DateDelegate(this);
-    DateDelegate* date = new DateDelegate(this);
-    //StyleDelegate* style  = new StyleDelegate(Qt::red,this);
-   // m_groupTable->setItemDelegateForColumn(2, style);
-    //m_groupTable->setItemDelegateForColumn(3, cityName);
+    DateDelegate* birthDate = new DateDelegate(minDate, this);
+    DateDelegate* date = new DateDelegate(minDate, this);
+    m_groupTable->setItemDelegateForColumn(3, cityName);
     m_groupTable->setItemDelegateForColumn(4, birthDate);
-   // m_groupTable->setItemDelegateForColumn(5, date);
-   // m_groupTable->setItemDelegateForColumn(6, date);
-  //  m_groupTable->setItemDelegateForColumn(7, groupName);
-  //  m_groupTable->setItemDelegateForColumn(9, jobStatus);
-  //  m_groupTable->setItemDelegateForColumn(8, score);
+    m_groupTable->setItemDelegateForColumn(5, date);
+    m_groupTable->setItemDelegateForColumn(6, date);
+    m_groupTable->setItemDelegateForColumn(7, groupName);
+    m_groupTable->setItemDelegateForColumn(9, jobStatus);
+    m_groupTable->setItemDelegateForColumn(8, score);
    // m_groupTable->horizontalHeader()->setStyleSheet("background-color : #D7DBDD");
    // m_groupTable->verticalHeader()->setStyleSheet("background-color : #D7DBDD");
     setMinimumSize(200,200);
@@ -94,7 +93,14 @@ void GroupsView::saveChanges()
 {
     qDebug()<<"save changes -----------------";
     QSqlTableModel* model = dynamic_cast<QSqlTableModel*>(m_groupTable->model());
-    qDebug()<<"is save"<<model->submitAll();
+    bool succes = model->submitAll();
+    if(succes) {
+        QMessageBox::information(this,"Save Changes","Your Changes successfully saved!",
+                QDialogButtonBox::Ok);
+    } else {
+        QMessageBox::critical(this,"Save Changes","Somthing happen wrong. Please try again!");
+        return;
+    }
     m_groupTable->setModel(model);
     qDebug()<<"in save last error"<<model->lastError();
 }
@@ -105,9 +111,19 @@ void GroupsView::addStudent(bool t)
    qDebug()<<"addStudent";
 
    QSqlTableModel* model = dynamic_cast<QSqlTableModel*>(m_groupTable->model());
+   qDebug()<<"Row count"<<model->rowCount();
+   qDebug()<<"record"<<model->record(model->rowCount()-1);
+  // if(model->record(model->rowCount()-1)) {
+  //      qDebug()<<"isNull";
+  //      return;
+  // }
    if(!model)
        return;
    qDebug()<<"row inserted"<<model->insertRow(model->rowCount());
+   if(model->record(model->rowCount()-1).isEmpty()) {
+
+   }
+
   // QModelIndex nIndex = model->index(1,7);
   // qDebug()<<"flag = "<<nIndex.flags();
   // model->setData(nIndex, m_groupName->text());

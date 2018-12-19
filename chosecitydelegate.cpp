@@ -4,23 +4,23 @@
 #include <QDebug>
 #include <QDateEdit>
 #include <QDate>
+#include <QSpinBox>
 
-ChoseCityDelegate::ChoseCityDelegate(QObject* parent):QItemDelegate (parent)
+ComboBoxDelegate::ComboBoxDelegate(QStringList items, QObject* parent):QItemDelegate (parent), m_itemsList(items)
 {
     qDebug()<<"----------------------------------------constructor--------------";
 }
 
-QWidget* ChoseCityDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+QWidget* ComboBoxDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QComboBox* cbox = new QComboBox(parent);
-    QStringList cities = {"Yerevan", "Ararat", "Armavir", "Aragatsotn", "Gegharkunik", "Kotayk", "Lori", "Shirak", "Syunik", "Tavush", "Vayots Dzor", "Artsakh"};
-    cbox->insertItems(0,cities);
+    cbox->insertItems(0,m_itemsList);
     qDebug()<<"---------------------createEditor----------------------------------";
     setEditorData(cbox, index);
     cbox->show();
     return cbox;
 }
-void ChoseCityDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+void ComboBoxDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     qDebug()<<"---------------------setEditorData----------------------------------";
     QVariant value = index.model()->data(index, Qt::EditRole);
@@ -28,21 +28,23 @@ void ChoseCityDelegate::setEditorData(QWidget *editor, const QModelIndex &index)
     cbox->setCurrentText(value.toString());
 
 }
-void ChoseCityDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+void ComboBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
     qDebug()<<"---------------------setModelData----------------------------------";
     QComboBox* cbox = dynamic_cast<QComboBox*>(editor);
     model->setData(index, cbox->currentText(), Qt::EditRole);
 }
-void ChoseCityDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void ComboBoxDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     qDebug()<<"-----------------updateEditorGeometry--------------------------------------";
     QComboBox* cbox = dynamic_cast<QComboBox*>(editor);
     editor->setGeometry(option.rect);
 }
-
-DateDelegate::DateDelegate(QObject* parent):QItemDelegate (parent)
-{}
+DateDelegate::DateDelegate(QDate min, QObject* parent, QDate max):QItemDelegate (parent)
+  ,min(min), max(max)
+{
+    qDebug()<<"data";
+}
 
 QWidget* DateDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
@@ -79,3 +81,40 @@ void DateDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewI
     editor->setGeometry(option.rect);
 }
 
+
+SpinBoxDelegate::SpinBoxDelegate(int low, int high, QObject* parent):QItemDelegate
+(parent),
+                                                                     m_lowScore(low),
+                                                                     m_highScore(high)
+{}
+
+QWidget* SpinBoxDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QSpinBox* spinBox = new QSpinBox(parent);
+    spinBox->setRange(m_lowScore,m_highScore);
+
+    return spinBox;
+}
+
+void SpinBoxDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+    qDebug()<<"---------------------DateDelegate::ssetEditorData----------------------------------";
+    //QVariant value
+    QVariant value = index.model()->data(index, Qt::DisplayRole);
+    QSpinBox* spinBox = dynamic_cast<QSpinBox*>(editor);
+    spinBox->setValue(value.toInt());
+}
+
+void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+{
+    QSpinBox* spinBox = dynamic_cast<QSpinBox*>(editor);
+    qDebug()<<"---------------------DateDelegate::setModelData----------------------------------";
+    model->setData(index, spinBox->value(), Qt::EditRole);
+}
+
+void SpinBoxDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    qDebug()<<"-----------------updateEditorGeometry--------------------------------------";
+    QSpinBox* spinBox = dynamic_cast<QSpinBox*>(editor);
+    editor->setGeometry(option.rect);
+}
