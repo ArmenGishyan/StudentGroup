@@ -23,51 +23,44 @@ public:
 
     enum class Accessibility
     {
-        POWER = 0,
-        ADVANCED = 1,
-        NORMAL = 2
+        UNKNOWN = 0,
+        POWER = 1,
+        ADVANCED = 2,
+        NORMAL = 3
     };
 
-    Admin() = default;
-    Admin(QString name, QString surname, Gender gen, Accessibility access);
-
+    Admin(QString name = "unknown", QString surname = "unknown", Gender gen = Gender::FEMALE, Accessibility access = Accessibility::UNKNOWN,
+          QPixmap pic = QPixmap("C://Users//agishyan//Desktop//studentGroupIcons//unknown.png"));
 
     QString getName() const
     {
         return m_name;
     }
 
-    void setName(const QString& name)
-    {
-        m_name = name;
-    }
     QString getSurname() const
     {
         return m_surname;
     }
 
-    QString setSurname(const QString& surname)
-    {
-        m_surname = surname;
-    }
     Admin::Gender getGender() const
     {
         return m_gender;
     }
-    void setGender(Gender gender)
-    {
-        m_gender = gender;
-    }
-    QPixmap* getPicture()
+
+    QPixmap getPicture()
     {
         return m_picture;
     }
 
+    Accessibility getAccess() const
+    {
+        return m_access;
+    }
 
 private:
     QString m_name;
     QString m_surname;
-    QPixmap* m_picture;
+    QPixmap m_picture;
     Gender m_gender;
     Accessibility m_access;
 };
@@ -90,7 +83,6 @@ public slots:
 private:
     QLineEdit* m_login;
     QLineEdit* m_password;
-    Admin* m_admin;
 };
 
 #endif // ADMINDBOX_H

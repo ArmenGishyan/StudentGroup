@@ -43,7 +43,8 @@
 #include <QDebug>
 #include <QProxyStyle>
 #include <QVariant>
-
+#include <QColor>
+#include <QSharedPointer>
 //class MyProxyStyle : public QProxyStyle
 //{
 //  public:
@@ -68,6 +69,9 @@
 //    //...
 //}
 //
+#include <algorithm>
+#include <QVector>
+
 enum Tag {a,b};
 int main(int argc, char *argv[])
 {
@@ -77,23 +81,28 @@ int main(int argc, char *argv[])
     std::map<int,QString> str = {{1,"Armen"}, {2,"Aram"}};
     qDebug()<<"fv"<<str[1];
     QListWidget* listW = new QListWidget;
-    QListWidgetItem* item1 = new QListWidgetItem(listW);
-    QListWidgetItem* item2 = new QListWidgetItem(listW);
-    QListWidgetItem* item3 = new QListWidgetItem(listW);
+    QTableView* table = new QTableView;
+    qDebug()<<"edit Role default ----------- "<<table->editTriggers();
 
-   // std::string str = "sdf";
+  //  QRadioButton* item1 = new QListWidgetItem(listW);
+  //  * item2 = new QListWidgetItem(listW);
+  //  * item3 = new QListWidgetItem(listW);
+  //  QRadioButton*
 
-            QStringList list1;
-   // list1.append(QString::fromStdString(str));
+  //  QVector<int> vec = {1,2,3,4,5,6};
+  //  std::remove(vec.begin(),vec.end(),3);
+  //  qDebug()<<"vector---------------"<<vec;
+  //          QStringList list1;
+  // // list1.append(QString::fromStdString(str));
 
-    item2->setData(Qt::EditRole, "ds");
-    qDebug()<<"list item "<<item2->data(Qt::EditRole).toString();
-    QDateEdit* date = new QDateEdit;
-    item1->setFlags(Qt::ItemIsSelectable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
-    item1->setCheckState(Qt::Checked);
-    qDebug()<<"flags = "<<item1->flags();
-    date->setDate(QDate::currentDate());
-   // listW->show();
+  //  item2->setData(Qt::EditRole, "ds");
+  //  qDebug()<<"list item "<<item2->data(Qt::EditRole).toString();
+  //  QDateEdit* date = new QDateEdit;
+  //  item1->setFlags(Qt::ItemIsSelectable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
+  //  item1->setCheckState(Qt::Checked);
+  //  qDebug()<<"flags = "<<item1->flags();
+  //  date->setDate(QDate::currentDate());
+  // // listW->show();
     win.show();
     unsigned int ads = 0;
     QVariant it;

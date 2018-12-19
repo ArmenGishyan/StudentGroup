@@ -12,15 +12,16 @@
 #include <QDialogButtonBox>
 #include <QSqlTableModel>
 #include <QModelIndex>
+#include <QRadioButton>
 
 #include "studentgroupdb.h"
 
-Admin::Admin(QString name, QString surname, Admin::Gender gen, Admin::Accessibility access)
+Admin::Admin(QString name, QString surname, Admin::Gender gen, Admin::Accessibility access, QPixmap pic)
     :m_name(name), m_surname(surname),
-     m_gender(gen), m_access(access)
+     m_gender(gen), m_access(access), m_picture(pic)
 {}
 
-AdminDBox::AdminDBox(QWidget* parrent):QDialog (parrent), m_admin(nullptr)
+AdminDBox::AdminDBox(QWidget* parrent):QDialog (parrent)
 {
     QGridLayout* gmainlayout = new QGridLayout;
     QHBoxLayout* hsearchSignIn = new QHBoxLayout;
@@ -63,20 +64,48 @@ void AdminDBox::replaceAdmin()
     QSqlQuery query("Select * from Admins", StudentGroupDB::getDatabase());
     QSqlTableModel* model = new QSqlTableModel(this, StudentGroupDB::getDatabase());
     model->setTable("Admins");
+
     model->setFilter("Login = '" + login +"'");
+    model->select();
+    if(model->rowCount() == 0) {
+        QMessageBox::critical(this,"Wrong Login","Written wrong Login. Can't find anyone",
+             QMessageBox::Ok);
+        return;
+    }
     model->setFilter("_Password = '" + password +"'");
     model->select();
-
-    QString name = model->record(0).value("Name").toString(); //.toString();
-    QString surname = model->record(0).value("Surname").toString();
-    Admin::Accessibility access = model->record(0).value("Accessibility").toBool() ?
+    if(model->rowCount() == 0) {
+        QMessageBox::critical(this,"Wrong Login",QString("Written wrong Password for ") + login,
+             QMessageBox::Ok);
+        return;
+    }
+    if(model->lastError().isValid()) {
+        return;
+    }
+    QSqlRecord record = model->record(0);
+    QString name = record.value("Name").toString();
+    QString surname = record.value("Surname").toString();
+    Admin::Accessibility access = record.value("Accessibility").toBool() ?
                                          Admin::Accessibility::POWER : Admin::Accessibility::NORMAL;
 
-    Admin::Gender gender = model->record(0).value("Accessibility").toBool() ?
-                                         Admin::Gender::MALE : Admin::Gender::FEMALE;
-    delete m_admin;
-    m_admin = new Admin(name,surname,gender,access);
-        emit adminReplaced(m_admin);
 
-    qDebug()<<"is Avelable "<<name;
+    Admin::Gender gender = record.value("Sex").toBool() ?
+                                         Admin::Gender::MALE : Admin::Gender::FEMALE;
+    Admin* admin = nullptr;
+    QIcon   boyAdmin("C://Users//agishyan//Desktop//studentGroupIcons//adminman.png");
+    QIcon   girlAdmin("C://Users//agishyan//Desktop//studentGroupIcons//admingirl.png");
+    QIcon   noAdmin("C://Users//agishyan//Desktop//studentGroupIcons//unknown.png");
+
+    QPixmap pixmap;
+    if(gender == Admin::Gender::MALE) {
+       QPixmap pic("C://Users//agishyan//Desktop//studentGroupIcons//adminman.png");
+       pixmap = pic;
+    } else {
+       QPixmap pic("C://Users//agishyan//Desktop//studentGroupIcons//admingirl.png");
+       pixmap = pic;
+    }
+    admin = new Admin(name,surname,gender,access,pixmap);
+        emit adminReplaced(admin);
+
+    this->hide();
 }

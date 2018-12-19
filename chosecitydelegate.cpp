@@ -47,7 +47,9 @@ DateDelegate::DateDelegate(QObject* parent):QItemDelegate (parent)
 QWidget* DateDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QDateEdit* date = new QDateEdit(parent);
+    qDebug()<<"Create--------------------";
     date->setDisplayFormat("dd.MM.yyyy");
+    //setEditorData(date,index);
     qDebug()<<"---------------------createEditor----------------------------------";
     return date;
 }
@@ -57,24 +59,23 @@ void DateDelegate::setEditorData(QWidget *editor, const QModelIndex &index) cons
     QVariant value = index.model()->data(index, Qt::DisplayRole);
     QDateEdit* date = dynamic_cast<QDateEdit*>(editor);
     date->setDisplayFormat("dd.MM.yyyy");
-    QStringList dateStr = value.toDate().toString().split(".", QString::SkipEmptyParts);
-    qDebug()<<"value String"<<dateStr;
-    date->setDate(value.toDate());
-    //date->setDate(QDate(dateStr[2].toInt(),dateStr[1].toInt(),dateStr[0].toInt()));
-    date->setDisplayFormat("dd.MM.yyyy");
+    QStringList dateStr = value.toString().split(".", QString::SkipEmptyParts);
+    if(dateStr.size() == 3) {
+        date->setDate(QDate(dateStr[2].toInt(),dateStr[1].toInt(),dateStr[0].toInt()));
+    }
 
 }
 void DateDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
     qDebug()<<"---------------------DateDelegate::setModelData----------------------------------";
-    QDateEdit* date = dynamic_cast<QDateEdit*>(editor);
-    qDebug()<<"setModel"<<date->date().toString();
-    model->setData(index, date->date().toString(), Qt::EditRole);
+    QDateEdit* date = static_cast<QDateEdit*>(editor);
+    model->setData(index, date->date().toString("dd.MM.yyyy"), Qt::EditRole);
+
 }
 void DateDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    qDebug()<<"-----------------updateEditorGeometry--------------------------------------";
     QDateEdit* date = dynamic_cast<QDateEdit*>(editor);
+    date->setDisplayFormat("dd.MM.yyyy");
     editor->setGeometry(option.rect);
 }
 

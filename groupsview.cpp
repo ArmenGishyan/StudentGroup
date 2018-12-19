@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QObject>
 #include <QHeaderView>
+
 #include <QToolBar>
 #include <QAbstractItemModel>
 #include <QSqlError>
@@ -17,24 +18,47 @@
 #include <QModelIndexList>
 #include <QMessageBox>
 #include <QDialogButtonBox>
+#include <QVariant>
+#include <QScrollBar>
 #include <algorithm>
+#include <QDate>
 
-GroupsView::GroupsView(QSqlTableModel* model, QString Name, QWidget *parent) : QWidget(parent)
+GroupsView::GroupsView(QSqlTableModel* model, QString Name, QWidget *parent, QAbstractItemView::EditTriggers editRole) : QWidget(parent)
 {
-    m_delegate = new ChoseCityDelegate(this);
-    m_dateDelegate = new DateDelegate(this);
-    m_groupName = new QPushButton(Name,this);
+    QStringList cities = {"Yerevan", "Ararat", "Armavir", "Aragatsotn", "Gegharkunik", "Kotayk", "Lori", "Shirak", "Syunik", "Tavush", "Vayots Dzor", "Artsakh"};
+    QStringList workStatus = {"Yes", "No"};
+    //ComboBoxDelegate* cityName = new ComboBoxDelegate(cities,this);
+    //ComboBoxDelegate* jobStatus = new ComboBoxDelegate(workStatus,this);
+    //SpinBoxDelegate* score = new SpinBoxDelegate(0, 100, this);
+    //ComboBoxDelegate* groupName = new ComboBoxDelegate(QStringList()<<Name<<"",this);
+    m_groupName = new QPushButton(Name, this);
     m_groupTable = new QTableView(this);
     m_groupTable->setModel(model);
-    m_groupTable->setItemDelegateForColumn(3,m_delegate);
-    m_groupTable->setItemDelegateForColumn(5,m_dateDelegate);
-    m_groupTable->setItemDelegateForColumn(6,m_dateDelegate);
+    m_groupTable->setEditTriggers(editRole);
+    QDate minDate(1950,01,01);
+    DateDelegate* birthDate = new DateDelegate(this);
+    DateDelegate* date = new DateDelegate(this);
+    //StyleDelegate* style  = new StyleDelegate(Qt::red,this);
+   // m_groupTable->setItemDelegateForColumn(2, style);
+    //m_groupTable->setItemDelegateForColumn(3, cityName);
+    m_groupTable->setItemDelegateForColumn(4, birthDate);
+   // m_groupTable->setItemDelegateForColumn(5, date);
+   // m_groupTable->setItemDelegateForColumn(6, date);
+  //  m_groupTable->setItemDelegateForColumn(7, groupName);
+  //  m_groupTable->setItemDelegateForColumn(9, jobStatus);
+  //  m_groupTable->setItemDelegateForColumn(8, score);
+   // m_groupTable->horizontalHeader()->setStyleSheet("background-color : #D7DBDD");
+   // m_groupTable->verticalHeader()->setStyleSheet("background-color : #D7DBDD");
     setMinimumSize(200,200);
+    m_groupTable->setAlternatingRowColors(true);
+    m_groupTable->setStyleSheet("alternate-background-color: gray");
 
     QVBoxLayout* it = new QVBoxLayout;
     it->addWidget(m_groupName);
     it->addWidget(m_groupTable);
     setLayout(it);
+    m_groupTable->horizontalScrollBar()->setHidden(true);
+    m_groupTable->showGrid();
     QHeaderView* header = m_groupTable->horizontalHeader();
     QObject::connect(m_groupName, SIGNAL(clicked(bool)), this, SLOT(passActiveView()));
     QObject::connect(header, SIGNAL(sectionClicked(int)), this, SLOT(handleSectionClick(int)));
@@ -66,11 +90,12 @@ void GroupsView::handleSectionClick(int ind)
    m_groupTable->setModel(model);
 }
 
-void GroupsView::saveChanges(bool state)
+void GroupsView::saveChanges()
 {
     qDebug()<<"save changes -----------------";
     QSqlTableModel* model = dynamic_cast<QSqlTableModel*>(m_groupTable->model());
     qDebug()<<"is save"<<model->submitAll();
+    m_groupTable->setModel(model);
     qDebug()<<"in save last error"<<model->lastError();
 }
 
@@ -87,7 +112,8 @@ void GroupsView::addStudent(bool t)
   // qDebug()<<"flag = "<<nIndex.flags();
   // model->setData(nIndex, m_groupName->text());
    m_groupTable->setModel(model);
-   m_groupTable->setColumnHidden(7, true);
+   //m_groupTable
+   //m_groupTable->setColumnHidden(7, true);
 }
 
 void GroupsView::removeStudent()
@@ -173,11 +199,52 @@ bool GroupsView::writeAsCSV()
     return true;
 }
 
-void GroupsView::adminSignIn(bool t)
+void GroupsView::fillUp()
 {
-    qDebug()<<"GroupsView::adminSignIn";
-    m_isAdminAveliable = t;
-   // QList<QAction*> actions = m_toolBar->actions();
-    //std::for_each(actions.begin(),actions.end(),[t](QAction* it){it->setEnabled(t);});
+    qDebug()<<"GroupsView::fillUp";
+    int columnindex = 0;
+    int rowIndex = 0;
+    QVariant data;
+    QAbstractItemModel* model = m_groupTable->model();
+    getSelectedCell(data,rowIndex,columnindex);
+
+    for(int i = rowIndex-1; i>=0; --i) {
+        qDebug()<<"inside func";
+        model->setData(model->index(i,columnindex),data);
+    }
 }
 
+void GroupsView::fillDown()
+{
+    qDebug()<<"GroupsView::fillDown";
+    int columnindex = 0;
+    int rowIndex = 0;
+    QVariant data;
+    QAbstractItemModel* model = m_groupTable->model();
+    getSelectedCell(data,rowIndex,columnindex);
+    const int rowCount =  model->rowCount();
+    for(int i = rowIndex+1; i<rowCount; ++i) {
+        model->setData(model->index(i,columnindex),data);
+    }
+}
+
+void GroupsView::setEditRole(QAbstractItemView::EditTriggers editRole)
+{
+   m_groupTable->setEditTriggers(editRole);
+}
+
+void GroupsView::getSelectedCell(QVariant& value, int& index, int& columnIndex)
+{
+    QItemSelectionModel *selections = m_groupTable->selectionModel();
+    QModelIndexList list = selections->selectedIndexes();
+    if(list.isEmpty()) {
+        QMessageBox::information(this,"Fill Column","Please select any cell \n before click on the button",
+             QMessageBox::Ok);
+        return;
+    }
+    columnIndex = list.begin()->column();
+    index = list.begin()->row();
+
+    QAbstractItemModel* model = m_groupTable->model();
+    value = model->index(index, columnIndex).data();
+}

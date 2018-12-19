@@ -19,6 +19,7 @@ class QPushButton;
 class SearchDialogBox;
 class QAction;
 class QGridLayout;
+class Admin;
 
 class CentralWidget : public QWidget
 {
@@ -28,6 +29,7 @@ public:
 
     void createWidgets();
     void addWidgetToLayout();
+    bool contains(const GroupsView* view) const;
     void showEvent(QShowEvent *event)
     {
         qDebug()<<"showEvent";
@@ -61,7 +63,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void createToolbar();
-    void actionEvent(QActionEvent * act) override;
+    void hideUnhideTools(bool);
 
 
 signals:
@@ -74,26 +76,27 @@ public slots:
     void handleViewChange(bool);
 
 private slots:
-    void saveChanges(bool state);
+    void saveChanges();
     void addStudent(bool);
     void removeStudent();
     void revertChanges(bool);
     void writeAsCSV();
     void setAsceSort();
     void setDescSort();
-    void adminSignIn(bool);
+    void adminSignIn(Admin*);
     void goHome();
+    void fillUp();
+    void fillDown();
+
 
 private:
-    QPushButton* m_admin;
     QPushButton* m_search;
     TableViewBox* m_viewBox;
     CentralWidget* m_centralWidget;
     GroupsView* m_currentView;
-    ChoseCityDelegate* delegate;
-    DateDelegate* m_dateDelegate;
     QToolBar* m_toolbar;
     QGridLayout* g_mainLayout ;
+    Admin* m_admin;
 };
 
 #endif // MAINWINDOW_H

@@ -5,6 +5,7 @@ LineEditIcon::LineEditIcon(const QIcon icon, QWidget *parent)
     : QLineEdit(parent)
 {
     setIcon(icon);
+    setClearButtonEnabled(true);
 }
 
 LineEditIcon::~LineEditIcon()
@@ -25,10 +26,10 @@ void LineEditIcon::paintEvent(QPaintEvent * event)
     QLineEdit::paintEvent(event);
     if (!m_icon.isNull()) {
         QPainter painter(this);
-        QPixmap pxm = m_icon.pixmap(height() - 6, height() - 6);
+        QPixmap pxm = m_icon.pixmap(height() - 6, height());
         int x = 2, cx = pxm.width();
 
-        painter.drawPixmap(x, 3, pxm);
+        painter.drawPixmap(x, 10, pxm);
         painter.setPen(QColor("lightgrey"));
         painter.drawLine(cx + 2, 3, cx + 2, height() - 4);
     }

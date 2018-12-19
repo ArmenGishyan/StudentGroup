@@ -14,6 +14,7 @@ class AdminDBox;
 class LineEditIcon;
 class QPushButton;
 class GroupsView;
+class Admin;
 
 class HeaderMenu : public QWidget
 {
@@ -21,6 +22,7 @@ class HeaderMenu : public QWidget
 public:
     explicit HeaderMenu(QWidget *parent = nullptr);
     bool validateSearchString(QStringList);
+    void adminOption();
 
 signals:
     void findStudent(GroupsView*);
@@ -32,8 +34,15 @@ public slots:
         return m_searchBox;
     }
 
+    AdminDBox* getAdminBox()
+    {
+        return m_adminbox;
+    }
+
+    void adminChanged(Admin*);
 private:
     LineEditIcon* m_search;
+    QToolButton* m_adminOptions;
     QLabel* currentAdmin;
     QMenu* m_menu;
     AdminDBox* m_adminbox;

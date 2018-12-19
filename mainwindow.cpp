@@ -22,7 +22,6 @@
 CentralWidget::CentralWidget(QWidget* parent): QWidget (parent)
 {
     m_grLay = new QGridLayout;
-    setStyleSheet("background-color:black");
     createWidgets();
     addWidgetToLayout();
     setLayout(m_grLay);
@@ -49,6 +48,16 @@ void CentralWidget::createWidgets()
 
 }
 
+bool CentralWidget::contains(const GroupsView* item) const
+{
+    for(int i = 0;i<m_widgets.size(); ++i) {
+        if(item == m_widgets[i]){
+            return true;
+        }
+    }
+    return false;
+}
+
 void CentralWidget::addWidgetToLayout()
 {
     int row = 0;
@@ -57,7 +66,7 @@ void CentralWidget::addWidgetToLayout()
         if(i % 3 == 0) {
             row++;
         }
-        m_widgets[i]->setStyleSheet("background-color: #426cda");
+       // m_widgets[i]->setStyleSheet("background-color: #426cda");
         m_widgets[i]->setColumnHidden(0,true);
         m_grLay->addWidget(m_widgets[i],row,i % 3);
     }
@@ -69,18 +78,19 @@ void CentralWidget::throwCurrentView(GroupsView* view)
     emit passView(view);
 }
 
-MainWindow::MainWindow(QWidget *parent) : QWidget(parent), m_currentView(nullptr)
+MainWindow::MainWindow(QWidget *parent) : QWidget(parent), m_currentView(nullptr), m_admin(nullptr)
 {
     HeaderMenu* menu = new HeaderMenu(this);
     connect(menu->getSearchBox(), SIGNAL(throwView(GroupsView*)), this, SLOT(setCurrentView(GroupsView*)));
+    connect(menu->getAdminBox(), SIGNAL(adminReplaced(Admin*)), this, SLOT(adminSignIn(Admin*)));
     m_currentView = new GroupsView;
     m_centralWidget = new CentralWidget(this);
     connect(m_centralWidget, SIGNAL(passView(GroupsView*)), this, SLOT(setCurrentView(GroupsView*)));
     qDebug()<<"vndfjvk---------vdvnd"<<connect(menu, &HeaderMenu::findStudent,this, &MainWindow::setCurrentView);
 
-    delegate = new ChoseCityDelegate(this);
-    m_search = new QPushButton("Search");
-    m_admin = new QPushButton("Admin");
+    //ComboBoxDelegate* delegate = new ComboBoxDelegate({},this);
+    QPushButton* search = new QPushButton("Search");
+    QPushButton* admin = new QPushButton("Admin");
     setMinimumWidth(1200);
     setMinimumHeight(800);
 
@@ -89,11 +99,13 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent), m_currentView(nullptr
     g_mainLayout->addWidget(menu,0,15,1,15);
     setLayout(g_mainLayout);
     createToolbar();
+    adminSignIn(nullptr);
     g_mainLayout->addWidget(m_toolbar,0,0,1,15);
     g_mainLayout->addWidget(m_centralWidget,1,0,20,30);
     g_mainLayout->addWidget(m_currentView,1,0,20,30);
     handleViewChange(false);
 }
+
 MainWindow::~MainWindow(){}
 
 void MainWindow::adminAveliable(bool t)
@@ -105,6 +117,8 @@ void MainWindow::adminAveliable(bool t)
 void MainWindow::createToolbar()
 {
    m_toolbar = new QToolBar(this);
+   m_toolbar->setFixedHeight(40);
+
    QPixmap addStudent("C://Users//agishyan//Desktop//studentGroupIcons//addstudent.png");
    QIcon addIcon("C://Users//agishyan//Desktop//studentGroupIcons//addstudent.png");
    QAction* m_addStud = new QAction(addIcon,"Add Student");
@@ -151,8 +165,7 @@ void MainWindow::createToolbar()
    QPixmap SaveChanges("C://Users//agishyan//Desktop//studentGroupIcons//save.png");
    QIcon   saveCh(SaveChanges);
    QAction* saveChanges = new QAction(saveCh,"Save Changes");
-   saveChanges->setCheckable(true);
-   qDebug()<<"save changes result"<<connect(saveChanges,SIGNAL(toggled(bool)), this, SLOT(saveChanges(bool)));
+   qDebug()<<"save changes result"<<connect(saveChanges,SIGNAL(triggered()), this, SLOT(saveChanges()));
    m_toolbar->addAction(saveChanges);
 
    QPixmap revertChanges("C://Users//agishyan//Desktop//studentGroupIcons//revert.png");
@@ -166,6 +179,25 @@ void MainWindow::createToolbar()
    m_toolbar->addAction(csvAction);
    connect(csvAction, SIGNAL(triggered()), this, SLOT(writeAsCSV()));
 
+
+   QPixmap fillup("C://Users//agishyan//Desktop//studentGroupIcons//fillup.png");
+   QIcon   fillupIcon(fillup);
+   QAction* fillupAction = new QAction(fillupIcon,"Fill Up Column");
+   m_toolbar->addAction(fillupAction);
+   connect(fillupAction, SIGNAL(triggered()), this, SLOT(fillUp()));
+
+   QPixmap filldown("C://Users//agishyan//Desktop//studentGroupIcons//filldown.png");
+   QIcon   filldownIcon(filldown);
+   QAction* filldownAction = new QAction(filldownIcon,"Fill Up Column");
+   m_toolbar->addAction(filldownAction);
+   connect(filldownAction, SIGNAL(triggered()), this, SLOT(fillDown()));
+
+   QPixmap emailIcon("C://Users//agishyan//Desktop//studentGroupIcons/emailIcon.png");
+   QIcon   eIcon(emailIcon);
+   QAction* emailAction = new QAction(emailIcon,"Write Email");
+   m_toolbar->addAction(emailAction);
+   //connect(emailAction, SIGNAL(triggered()), this, SLOT(fillDown()));
+
    qDebug()<<"revert changes result"<<connect(revert,SIGNAL(triggered(bool)), this, SLOT(revertChanges(bool)));
    m_toolbar->setStyleSheet("background-color : #32488d");
    QList<QAction*> act = m_toolbar->actions();
@@ -176,21 +208,22 @@ void MainWindow::setCurrentView(GroupsView* view)
 {
     qDebug()<<"current view";
     if(view) {
-        m_currentView = view;
+        if(!m_centralWidget->contains(m_currentView)) {
+            delete m_currentView;
+            m_currentView = view;
+        } else {
+            m_currentView = view;
+        }
         emit currentViewChanged(true);
     } else {
         emit currentViewChanged(false);
     }
 }
-void MainWindow::actionEvent(QActionEvent * act)
-{
-    qDebug()<<"Action Event Work";
-}
 
-void MainWindow::saveChanges(bool state)
+void MainWindow::saveChanges()
 {
     if(m_currentView) {
-        m_currentView->saveChanges(state);
+        m_currentView->saveChanges();
     }
 }
 void MainWindow::addStudent(bool t)
@@ -237,9 +270,22 @@ void MainWindow::setDescSort()
         m_currentView->setDescSort();
     }
 }
-void MainWindow::adminSignIn(bool)
+void MainWindow::adminSignIn(Admin* admin)
 {
-
+    qDebug()<<"adminSignIn";
+    delete m_admin;
+    m_admin = admin;
+    if(m_admin != nullptr) {
+        //m_toolbar->setEnabled(true);
+        hideUnhideTools(true);
+        if(m_currentView != nullptr) {
+            m_currentView->setEditRole(
+                        (QAbstractItemView::EditTrigger::DoubleClicked | QAbstractItemView::EditTrigger::EditKeyPressed));
+        }
+    } else {
+        hideUnhideTools(false);
+        //m_toolbar->setDisabled(false);
+    }
 }
 
 void MainWindow::goHome()
@@ -253,9 +299,17 @@ void MainWindow::handleViewChange(bool t)
     if(t) {
 
         qDebug()<<"inside if";
-        m_toolbar->show();
-        m_currentView->setParent(this);
+        //m_toolbar->show();
         m_currentView->show();
+        if(m_admin != nullptr) {
+            m_currentView->setEditRole(
+                        (QAbstractItemView::EditTrigger::DoubleClicked | QAbstractItemView::EditTrigger::EditKeyPressed));
+            //m_toolbar->setEnabled(true);
+            hideUnhideTools(true);
+        } else {
+            hideUnhideTools(false);
+             //m_toolbar->setEnabled(false);
+        }
         g_mainLayout->addWidget(m_currentView,1,0,20,30);
         m_centralWidget->hide();
     } else {
@@ -264,10 +318,36 @@ void MainWindow::handleViewChange(bool t)
             qDebug()<<" != nullptr";
            m_currentView->hide();
 
-         // m_currentView->setStyleSheet("background-color : red");
         }
-        m_toolbar->hide();
+        hideUnhideTools(false);
+        //m_toolbar->hide();
         g_mainLayout->addWidget(m_centralWidget,1,0,20,30);
         m_centralWidget->show();
+    }
+}
+
+void MainWindow::fillDown()
+{
+    qDebug()<<"MainWindow::fillDown";
+    if(m_currentView) {
+        m_currentView->fillDown();
+    }
+}
+
+void MainWindow::fillUp()
+{
+    qDebug()<<"MainWindow::fillup";
+    if(m_currentView) {
+        m_currentView->fillUp();
+    }
+}
+
+void MainWindow::hideUnhideTools(bool t)
+{
+    if(m_toolbar) {
+        QList<QAction*> list = m_toolbar->actions();
+        for(int i = 0; i<list.size(); ++i) {
+            list[i]->setVisible(t);
+        }
     }
 }

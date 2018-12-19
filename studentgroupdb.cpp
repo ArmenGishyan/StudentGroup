@@ -45,7 +45,10 @@ QSet<QString> StudentGroupDB::getGroupNames()
     assert(query.exec("select GroupName from Students"));
     qDebug()<<query.lastError();
     while (query.next()) {
-           studentsGroupName.insert(query.value(0).toString());
+           QString str = query.value(0).toString();
+           if(!str.isEmpty()) {
+                studentsGroupName.insert(str);
+           }
     }
     return studentsGroupName;
 }

@@ -13,6 +13,8 @@
 #include <QCheckBox>
 #include <QSqlTableModel>
 #include <QSqlError>
+#include <QApplication>
+#include <QCoreApplication>
 #include <memory>
 
 #include "searchdialogbox.h"
@@ -83,7 +85,9 @@ SearchDialogBox::SearchDialogBox(QWidget *parrent):QWidget(parrent)
     groupNameLayout->addWidget(m_groupName);
 
     QHBoxLayout* actionBtLayout = new QHBoxLayout;
-    m_searchbt = new QPushButton("Search",this);
+    m_searchbt = new QPushButton(this);
+    m_searchbt->setText(QObject::tr("x^2"));
+    //m_searchbt->setStyleSheet("")
     connect(m_searchbt, SIGNAL(clicked(bool)), this, SLOT(searchStudent()));
 
     m_cancel = new QPushButton("Cancel");
@@ -157,8 +161,7 @@ void SearchDialogBox::searchStudent()
     model->select();
     qDebug()<<"error"<<model->lastError();
 
-   // std::shared_ptr<GroupsView> view(new GroupsView(model,"Search Result"));
-    GroupsView* view = new GroupsView(model, "Search Result");
+    GroupsView* view = new GroupsView(model,"Search Result");
     emit throwView(view);
 }
 SearchResult SearchDialogBox::getSreachResult() const
