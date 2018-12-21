@@ -40,12 +40,18 @@ public slots:
         return m_adminbox;
     }
 
+    QAction* getHomeAction()
+    {
+       return homeAction;
+    }
+
     void adminChanged(Admin*);
 private:
     LineEditIcon* m_search;
     QToolButton* m_adminOptions;
     QLabel* currentAdmin;
     QMenu* m_menu;
+    QAction* homeAction;
     AdminDBox* m_adminbox;
     SearchDialogBox* m_searchBox;
     QPushButton* m_searchbt;

@@ -19,6 +19,8 @@
 #include <QPainter>
 #include <QToolButton>
 #include <QToolBar>
+#include <QKeySequence>
+#include <QShortcut>
 #include <memory>
 
 #include "searchdialogbox.h"
@@ -48,7 +50,7 @@ HeaderMenu::HeaderMenu(QWidget *parent) : QWidget(parent),m_adminOptions(nullptr
    menuIcon.paint(painter,0,0,150,150);
 
   Admin admin;
-  adminChanged(&admin);
+  emit adminChanged(&admin);
   m_menu = new QMenu("Menu", toolbar);
   QToolButton* toolButton = new QToolButton();
   toolButton->setIcon(menuIcon);
@@ -59,7 +61,7 @@ HeaderMenu::HeaderMenu(QWidget *parent) : QWidget(parent),m_adminOptions(nullptr
 
 
    m_menu->setIcon(menuIcon);
-   QAction* homeAction = new QAction(homeIcon,"Home");
+   homeAction = new QAction(homeIcon,"Home");
    QAction* adminAction = new QAction(adminIcon,"Admin");
    QAction* searchAction = new QAction(searchIcon,"Search Students");
 
@@ -79,12 +81,12 @@ HeaderMenu::HeaderMenu(QWidget *parent) : QWidget(parent),m_adminOptions(nullptr
    connect(searchAction, SIGNAL(triggered()), m_searchBox, SLOT(show()));
 
    toolbar->setFixedWidth(100);
-   //toolbar->addMenu(m_menu);
    QHBoxLayout*   menuSearch = new QHBoxLayout;
    menuSearch->setMargin(0);
    menuSearch->setSpacing(0);
    menuSearch->addWidget(m_search);
    m_searchbt = new QPushButton("Search");
+   m_searchbt->setShortcut(QKeySequence(Qt::Key_Enter));
    m_searchbt->setFixedHeight(40);
    connect(m_searchbt, SIGNAL(clicked(bool)), this, SLOT(findStudents()));
    menuSearch->addWidget(m_searchbt);

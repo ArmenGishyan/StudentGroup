@@ -17,6 +17,7 @@
 #include <QCoreApplication>
 #include <QSpacerItem>
 #include <QSplitter>
+#include <QButtonGroup>
 #include <memory>
 
 #include "searchdialogbox.h"
@@ -79,22 +80,36 @@ SearchDialogBox::SearchDialogBox(QWidget *parrent):QWidget(parrent)
     nameSurname->addRow(QObject::tr("Student's name \t"), m_nameBox);
     nameSurname->addRow(QObject::tr("Student's surname \t"), m_surnameBox);
 
-    QHBoxLayout* checkBoxes = new QHBoxLayout;
-    m_workedOrNot = new QCheckBox("Worked Or Not", this);
-    m_withScores = new QCheckBox("Disable Scores");
+    QGridLayout* checkBoxes = new QGridLayout;
+    QHBoxLayout* jobscore = new QHBoxLayout;
+    m_jobexperience = new QButtonGroup(this);
+    m_jobexperience->addButton(new QCheckBox("Yes"), 0);
+    m_jobexperience->addButton(new QCheckBox("No"), 1);
+    m_jobexperience->addButton(new QCheckBox("All"), 2);
+    checkBoxes->addWidget(new QLabel("Job Experience", this),0,0,1,2);
+    checkBoxes->addWidget(m_jobexperience->button(0),1,0,2,1);
+    checkBoxes->addWidget(m_jobexperience->button(1),1,1,2,2);
+    checkBoxes->addWidget(m_jobexperience->button(2),1,2,2,3);
+    m_jobexperience->button(2)->setChecked(true);
+
+    m_withScores = new QCheckBox("Yes/No");
+    checkBoxes->addWidget(new QLabel("With Scores", this),0,6,1,1);
+    checkBoxes->addWidget(m_withScores,1,6,2,1);
     connect(m_withScores, SIGNAL(clicked(bool)), m_lowsScore, SLOT(setDisabled(bool)));
     connect(m_withScores, SIGNAL(clicked(bool)), m_highScore, SLOT(setDisabled(bool)));
-    checkBoxes->addWidget(m_workedOrNot);
-    checkBoxes->addWidget(m_withScores);
+
+    jobscore->addLayout(checkBoxes);
 
     QHBoxLayout* groupNameLayout = new QHBoxLayout;
     groupNameLayout->addWidget(new QLabel("Group Name"));
     m_groupName = new QComboBox(this);
+    m_groupName->addItem("All");
     groupNameLayout->addWidget(m_groupName);
 
     QHBoxLayout* regionsLay = new QHBoxLayout;
     m_regionsBox = new QComboBox(this);
-    m_regionsBox->addItems(StudentGroupDB::getRegions());
+    m_regionsBox->addItems(StudentGroupDB::getRegions()<<"All");
+    m_regionsBox->setCurrentText("All");
     regionsLay->addWidget(new QLabel("Region"));
     regionsLay->addWidget(m_regionsBox);
 
@@ -115,7 +130,7 @@ SearchDialogBox::SearchDialogBox(QWidget *parrent):QWidget(parrent)
     searchLayout->addLayout(nameSurname);
     searchLayout->addLayout(scoreSlider);
     searchLayout->addWidget(spl);
-    searchLayout->addLayout(checkBoxes);
+    searchLayout->addLayout(jobscore);
     searchLayout->addWidget(spl);
     searchLayout->addLayout(groupNameLayout);
     searchLayout->addLayout(regionsLay);
@@ -164,15 +179,37 @@ void SearchDialogBox::searchStudent()
     SearchResult result = getSreachResult();
     QString searchStr;
     if(!result.name.isEmpty()) {
-        searchStr.append("Name = '"+result.name + "' and ");
+        searchStr.append("Name = '"+result.name + "'");
+    }
+
+    if(!searchStr.isEmpty()) {
+        searchStr.append(" and ");
     }
 
     if(!result.surname.isEmpty()) {
-        searchStr.append("Surname = '"+result.surname + "' and ");
+        searchStr.append(" and Surname = '"+result.surname + "'");
     }
 
-    searchStr.append("AverageScore < '" + QString::number(result.highScore) + "'");
-    searchStr.append(" and AverageScore > '" + QString::number(result.lowScore) + "'");
+    if(!m_withScores->isChecked()) {
+        qDebug()<<"----------------------checked";
+        searchStr.append(" and AverageScore <= '" + QString::number(result.highScore) + "'");
+        searchStr.append(" and AverageScore >= '" + QString::number(result.lowScore) + "'");
+    }
+
+    QString str;
+    if(!m_jobexperience->button(2)->isChecked()) {
+       if(m_jobexperience->button(1)->isChecked()) {
+           str.append("WorkedOrNot = '"+m_jobexperience->button(0)->text()+"'");
+       } else if(m_jobexperience->button(1)->isChecked()) {
+           str.append("WorkedOrNot = '"+m_jobexperience->button(1)->text()+"'");
+       }
+    }
+
+    if(!searchStr.isEmpty() && !str.isEmpty()) {
+        searchStr.append(" and ");
+    }
+    qDebug()<<"STR = "<<str;
+    searchStr.append(str);
     QSqlTableModel* model = new QSqlTableModel(nullptr,StudentGroupDB::getDatabase());
     qDebug()<<"search str"<<searchStr;
     model->setTable("Students");

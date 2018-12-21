@@ -16,6 +16,7 @@
 #include <QCheckBox>
 #include <QTableWidget>
 #include <QSpacerItem>
+#include <QAction>
 
 #include "headermenu.h"
 #include "quickmenu.h"
@@ -66,7 +67,6 @@ void CentralWidget::addWidgetToLayout()
         if(i % 3 == 0) {
             row++;
         }
-       // m_widgets[i]->setStyleSheet("background-color: #426cda");
         m_widgets[i]->setColumnHidden(0,true);
         m_grLay->addWidget(m_widgets[i],row,i % 3);
     }
@@ -88,11 +88,10 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent), m_currentView(nullptr
     connect(m_centralWidget, SIGNAL(passView(GroupsView*)), this, SLOT(setCurrentView(GroupsView*)));
     qDebug()<<"vndfjvk---------vdvnd"<<connect(menu, &HeaderMenu::findStudent,this, &MainWindow::setCurrentView);
 
-    //ComboBoxDelegate* delegate = new ComboBoxDelegate({},this);
-    QPushButton* search = new QPushButton("Search");
-    QPushButton* admin = new QPushButton("Admin");
     setMinimumWidth(1200);
     setMinimumHeight(800);
+
+    qDebug()<<"infooooooooooooooooo"<<connect(menu->getHomeAction(), SIGNAL(triggered(bool)), this, SLOT(goHome()));
 
     connect(this, SIGNAL(currentViewChanged(bool)), this, SLOT(handleViewChange(bool)));
     g_mainLayout = new QGridLayout;
@@ -195,7 +194,6 @@ void MainWindow::createToolbar()
    QIcon   eIcon(emailIcon);
    QAction* emailAction = new QAction(emailIcon,"Write Email");
    m_toolbar->addAction(emailAction);
-   //connect(emailAction, SIGNAL(triggered()), this, SLOT(fillDown()));
 
    qDebug()<<"revert changes result"<<connect(revert,SIGNAL(triggered(bool)), this, SLOT(revertChanges(bool)));
    m_toolbar->setStyleSheet("background-color : #32488d");

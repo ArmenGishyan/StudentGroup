@@ -73,7 +73,7 @@ private:
     QComboBox* m_groupName;
     QPushButton* m_searchbt;
     QPushButton* m_cancel;
-    QCheckBox* m_workedOrNot;
+    QButtonGroup* m_jobexperience;
     QCheckBox* m_withScores;
     QComboBox* m_regionsBox;
 
