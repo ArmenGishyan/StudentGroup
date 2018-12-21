@@ -24,11 +24,12 @@
 #include <algorithm>
 #include <QDate>
 
+#include "studentgroupdb.h"
+
 GroupsView::GroupsView(QSqlTableModel* model, QString Name, QWidget *parent, QAbstractItemView::EditTriggers editRole) : QWidget(parent)
 {
-    QStringList cities = {"Yerevan", "Ararat", "Armavir", "Aragatsotn", "Gegharkunik", "Kotayk", "Lori", "Shirak", "Syunik", "Tavush", "Vayots Dzor", "Artsakh"};
     QStringList workStatus = {"Yes", "No"};
-    ComboBoxDelegate* cityName = new ComboBoxDelegate(cities,this);
+    ComboBoxDelegate* cityName = new ComboBoxDelegate(StudentGroupDB::getRegions(),this);
     ComboBoxDelegate* jobStatus = new ComboBoxDelegate(workStatus,this);
     SpinBoxDelegate* score = new SpinBoxDelegate(0, 100, this);
     ComboBoxDelegate* groupName = new ComboBoxDelegate(QStringList()<<Name<<"",this);

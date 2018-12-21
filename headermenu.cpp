@@ -69,16 +69,13 @@ HeaderMenu::HeaderMenu(QWidget *parent) : QWidget(parent),m_adminOptions(nullptr
    m_menu->addAction(searchAction);
 
    m_adminbox = new AdminDBox(this);
-   //connect(m_adminbox, SIGNAL(adminReplaced(Admin*)), this, SLOT(adminChanged(Admin*)));
    connect(m_adminbox, SIGNAL(adminReplaced(Admin*)), this,  SLOT(adminChanged(Admin*)));
    m_searchBox = new SearchDialogBox();
    m_searchBox->setGroupBoxValue(m_db.getGroupNames());
    m_searchBox->hide();
    m_adminbox->hide();
 
-   qDebug()<<"is admin to main "<<connect(m_adminbox, SIGNAL(adminSign(bool)), this, SLOT(adminAveliable(bool)));
    connect(adminAction, SIGNAL(triggered()), m_adminbox, SLOT(show()));
-   connect(m_adminbox,SIGNAL(adminReplaced(Admin*)), this, SLOT(setCurrentAdmin(Admin*)));
    connect(searchAction, SIGNAL(triggered()), m_searchBox, SLOT(show()));
 
    toolbar->setFixedWidth(100);
@@ -177,3 +174,9 @@ void HeaderMenu::adminChanged(Admin* admin)
     m_adminOptions->setPopupMode(QToolButton::InstantPopup);
 }
 
+HeaderMenu::~HeaderMenu()
+{
+    qDebug()<<"HeaderMenu ------------------------- destructor";
+    delete m_searchBox;
+    delete m_adminbox;
+}

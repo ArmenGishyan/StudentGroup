@@ -70,3 +70,12 @@ QSqlTableModel* StudentGroupDB::findStudent(SearchResult sResult)
     model->select();
     return model;
 }
+
+QStringList StudentGroupDB::getRegions()
+{
+    QStringList cities = {"Yerevan", "Ararat", "Armavir", "Aragatsotn",
+                          "Gegharkunik", "Kotayk", "Lori", "Shirak", "Syunik",
+                          "Tavush", "Vayots Dzor", "Artsakh"};
+
+    return cities;
+}

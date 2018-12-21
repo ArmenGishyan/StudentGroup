@@ -15,24 +15,27 @@
 #include <QSqlError>
 #include <QApplication>
 #include <QCoreApplication>
+#include <QSpacerItem>
+#include <QSplitter>
 #include <memory>
 
 #include "searchdialogbox.h"
 #include "studentgroupdb.h"
 #include "groupsview.h"
 
-SpinSliderWidget::SpinSliderWidget(QString label,int lowScore, int highScore, QWidget *parrent):QWidget(parrent)
+SpinSliderWidget::SpinSliderWidget(QString label,int lowScore, int highScore,int defValue, QWidget *parrent):QWidget(parrent)
 {
     m_spinBox = new QSpinBox(this);
     m_slider = new QSlider(Qt::Horizontal, this);
     m_slider->setRange(lowScore, highScore);
     m_spinBox->setRange(lowScore, highScore);
+    m_spinBox->setValue(defValue);
+    m_slider->setValue(defValue);
 
     QObject::connect(m_spinBox, SIGNAL(valueChanged(int)), m_slider, SLOT(setValue(int)));
     QObject::connect(m_slider, SIGNAL(valueChanged(int)), m_spinBox, SLOT(setValue(int)));
     QObject::connect(m_slider,  SIGNAL(valueChanged(int)), this, SLOT(valueChanged(int)));
 
-    m_spinBox->setValue((lowScore+highScore)/2);
     QHBoxLayout* lay_p = new QHBoxLayout(this);
     lay_p->addWidget(new QLabel(label, this));
     lay_p->addWidget(m_spinBox);
@@ -61,16 +64,18 @@ SearchDialogBox::SearchDialogBox(QWidget *parrent):QWidget(parrent)
     QVBoxLayout* searchLayout = new QVBoxLayout;
     QVBoxLayout* scoreSlider = new QVBoxLayout;
     scoreSlider->setSpacing(0);
-    //scoreSlider->se
-    m_lowsScore = new SpinSliderWidget("LowScore", 0, 100, this);
-    m_highScore = new SpinSliderWidget("HighScore", 0, 100, this);
+
+    m_lowsScore = new SpinSliderWidget("LowScore", 0, 100, 0, this);
+    m_highScore = new SpinSliderWidget("HighScore", 0, 100, 100, this);
     scoreSlider->addWidget(m_lowsScore);
     scoreSlider->addWidget(m_highScore);
     setFixedWidth(500);
 
     QFormLayout* nameSurname = new QFormLayout;
     m_nameBox = new QLineEdit(this);
+    m_nameBox->setClearButtonEnabled(true);
     m_surnameBox = new QLineEdit(this);
+    m_surnameBox->setClearButtonEnabled(true);
     nameSurname->addRow(QObject::tr("Student's name \t"), m_nameBox);
     nameSurname->addRow(QObject::tr("Student's surname \t"), m_surnameBox);
 
@@ -87,10 +92,15 @@ SearchDialogBox::SearchDialogBox(QWidget *parrent):QWidget(parrent)
     m_groupName = new QComboBox(this);
     groupNameLayout->addWidget(m_groupName);
 
+    QHBoxLayout* regionsLay = new QHBoxLayout;
+    m_regionsBox = new QComboBox(this);
+    m_regionsBox->addItems(StudentGroupDB::getRegions());
+    regionsLay->addWidget(new QLabel("Region"));
+    regionsLay->addWidget(m_regionsBox);
+
     QHBoxLayout* actionBtLayout = new QHBoxLayout;
     m_searchbt = new QPushButton(this);
-    m_searchbt->setText(QObject::tr("x^2"));
-    //m_searchbt->setStyleSheet("")
+    m_searchbt->setText(QObject::tr("Search"));
     connect(m_searchbt, SIGNAL(clicked(bool)), this, SLOT(searchStudent()));
 
     m_cancel = new QPushButton("Cancel");
@@ -101,10 +111,16 @@ SearchDialogBox::SearchDialogBox(QWidget *parrent):QWidget(parrent)
     m_searchbt->installEventFilter(this);
 
     searchLayout->setSpacing(10);
+    QSplitter* spl = new QSplitter(this);
     searchLayout->addLayout(nameSurname);
     searchLayout->addLayout(scoreSlider);
+    searchLayout->addWidget(spl);
     searchLayout->addLayout(checkBoxes);
+    searchLayout->addWidget(spl);
     searchLayout->addLayout(groupNameLayout);
+    searchLayout->addLayout(regionsLay);
+    QSpacerItem* item = new QSpacerItem(30,30);
+    searchLayout->addWidget(spl);
     searchLayout->addLayout(actionBtLayout);
     setLayout(searchLayout);
     setWindowTitle("Search");

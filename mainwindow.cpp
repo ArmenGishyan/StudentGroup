@@ -106,7 +106,6 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent), m_currentView(nullptr
     handleViewChange(false);
 }
 
-MainWindow::~MainWindow(){}
 
 void MainWindow::adminAveliable(bool t)
 {
@@ -350,4 +349,9 @@ void MainWindow::hideUnhideTools(bool t)
             list[i]->setVisible(t);
         }
     }
+}
+
+MainWindow::~MainWindow()
+{
+    qDebug()<<"Main Window destructor";
 }

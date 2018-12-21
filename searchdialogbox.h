@@ -31,7 +31,7 @@ class SpinSliderWidget : public QWidget
 {
     Q_OBJECT
 public:
-    SpinSliderWidget(QString label,int lowScore, int highScore, QWidget* parrent = nullptr);
+    SpinSliderWidget(QString label,int lowScore, int highScore, int defValue = 0, QWidget* parrent = nullptr);
     virtual ~SpinSliderWidget() = default;
 
     int getScore() const;
@@ -75,6 +75,7 @@ private:
     QPushButton* m_cancel;
     QCheckBox* m_workedOrNot;
     QCheckBox* m_withScores;
+    QComboBox* m_regionsBox;
 
 private slots:
     void checkScoreRanges(const int) const;

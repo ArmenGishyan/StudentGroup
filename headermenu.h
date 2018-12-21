@@ -21,6 +21,7 @@ class HeaderMenu : public QWidget
     Q_OBJECT
 public:
     explicit HeaderMenu(QWidget *parent = nullptr);
+    ~HeaderMenu();
     bool validateSearchString(QStringList);
     void adminOption();
 
