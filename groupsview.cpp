@@ -25,6 +25,7 @@
 #include <QDate>
 
 #include "studentgroupdb.h"
+#include "chosecitydelegate.h"
 
 GroupsView::GroupsView(QSqlTableModel* model, QString Name, QWidget *parent, QAbstractItemView::EditTriggers editRole) : QWidget(parent)
 {
@@ -47,11 +48,9 @@ GroupsView::GroupsView(QSqlTableModel* model, QString Name, QWidget *parent, QAb
     m_groupTable->setItemDelegateForColumn(7, groupName);
     m_groupTable->setItemDelegateForColumn(9, jobStatus);
     m_groupTable->setItemDelegateForColumn(8, score);
-   // m_groupTable->horizontalHeader()->setStyleSheet("background-color : #D7DBDD");
-   // m_groupTable->verticalHeader()->setStyleSheet("background-color : #D7DBDD");
     setMinimumSize(200,200);
     m_groupTable->setAlternatingRowColors(true);
-    m_groupTable->setStyleSheet("alternate-background-color: gray");
+    m_groupTable->setStyleSheet("alternate-background-color: #DCDFE1");
 
     QVBoxLayout* it = new QVBoxLayout;
     it->addWidget(m_groupName);
@@ -71,20 +70,17 @@ void GroupsView::setColumnHidden(int column, bool hide)
 
 void GroupsView::passActiveView()
 {
-    qDebug()<<"handleGroupNameClick";
     emit passCurrentView(this);
 }
 
 void GroupsView::handleSectionClick(int ind)
 {
-   qDebug()<<"handleSectionClick"<<"ind " <<ind;
    QAbstractItemModel* modelBase = m_groupTable->model();
    QSqlTableModel* model = dynamic_cast<QSqlTableModel*>(modelBase);
    if(!model) {
-       qDebug()<<"model is nullptr";
        return;
    }
-   qDebug()<<"inside";
+
    model->setSort(ind, m_sortOrder);
    model->select();
    m_groupTable->setModel(model);
@@ -92,7 +88,6 @@ void GroupsView::handleSectionClick(int ind)
 
 void GroupsView::saveChanges()
 {
-    qDebug()<<"save changes -----------------";
     QSqlTableModel* model = dynamic_cast<QSqlTableModel*>(m_groupTable->model());
     bool succes = model->submitAll();
     if(succes) {
@@ -102,40 +97,21 @@ void GroupsView::saveChanges()
         QMessageBox::critical(this,"Save Changes","Somthing happen wrong. Please try again!");
         return;
     }
+
     m_groupTable->setModel(model);
-    qDebug()<<"in save last error"<<model->lastError();
 }
 
 void GroupsView::addStudent(bool t)
 {
-   qDebug()<<"state = "<<t;
-   qDebug()<<"addStudent";
-
    QSqlTableModel* model = dynamic_cast<QSqlTableModel*>(m_groupTable->model());
-   qDebug()<<"Row count"<<model->rowCount();
-   qDebug()<<"record"<<model->record(model->rowCount()-1);
-  // if(model->record(model->rowCount()-1)) {
-  //      qDebug()<<"isNull";
-  //      return;
-  // }
    if(!model)
        return;
-   qDebug()<<"row inserted"<<model->insertRow(model->rowCount());
-   if(model->record(model->rowCount()-1).isEmpty()) {
 
-   }
-
-  // QModelIndex nIndex = model->index(1,7);
-  // qDebug()<<"flag = "<<nIndex.flags();
-  // model->setData(nIndex, m_groupName->text());
    m_groupTable->setModel(model);
-   //m_groupTable
-   //m_groupTable->setColumnHidden(7, true);
 }
 
 void GroupsView::removeStudent()
 {
-    qDebug()<<"Remove Student";
     QItemSelectionModel *selections = m_groupTable->selectionModel();
     QModelIndexList list = selections->selectedRows();
     if(list.empty()) {
@@ -144,31 +120,25 @@ void GroupsView::removeStudent()
         return;
     }
     int rowindex = list.begin()->row();
-    qDebug()<<"list size"<<list.size();
-   //` QString name = m_groupTable->model()->data(*(list.begin()+=2)).toString();
-   //` QString surname = m_groupTable->model()->data(*(list.begin()+=3)).toString();
-
-     int x = QMessageBox::information(this,"Delete Student","Are you sure delete a ",
+    int x = QMessageBox::information(this,"Delete Student","Are you sure delete a ",
              QMessageBox::Ok | QMessageBox::Cancel);
 
-     QSqlTableModel* model =  dynamic_cast<QSqlTableModel*>(m_groupTable->model());
-     if(!model) {
-         return;
-     }
-     if(x == QMessageBox::Ok) {
-        model->removeRow(rowindex);
-        model->submitAll();
-     } else {
-        //model->revertRow(rowindex);
-     }
+    QSqlTableModel* model =  dynamic_cast<QSqlTableModel*>(m_groupTable->model());
+    if(!model) {
+        return;
+    }
+    if(x == QMessageBox::Ok) {
+       model->removeRow(rowindex);
+       model->submitAll();
+    }
 }
+
 void GroupsView::revertChanges(bool state)
 {
     QSqlTableModel* model = dynamic_cast<QSqlTableModel*>(m_groupTable->model());
     if(!model){
         return;
     }
-
 
     model->revertAll();
     m_groupTable->setModel(model);
@@ -186,7 +156,7 @@ bool GroupsView::writeAsCSV()
     QString textData;
     QAbstractItemModel* model = m_groupTable->model();
     QVariant data = model->headerData(1,Qt::Horizontal);;
-    qDebug()<<"header data "<<data.toString();
+
     int rows = m_groupTable->model()->rowCount();
     int columns = m_groupTable->model()->columnCount();
 
@@ -199,13 +169,11 @@ bool GroupsView::writeAsCSV()
         for (int j = 1; j < columns; j++) {
 
                 textData += model->data(model->index(i,j)).toString();
-                textData += ", ";      // for .csv file format
+                textData += ", ";
         }
-        textData += "\n";             // (optional: for new line segmentation)
+        textData += "\n";
     }
 
-    // [Save to file] (header file <QFile> needed)
-    // .csv
     if(open) {
 
         QTextStream out(&csvFile);
@@ -218,7 +186,6 @@ bool GroupsView::writeAsCSV()
 
 void GroupsView::fillUp()
 {
-    qDebug()<<"GroupsView::fillUp";
     int columnindex = 0;
     int rowIndex = 0;
     QVariant data;
@@ -226,14 +193,12 @@ void GroupsView::fillUp()
     getSelectedCell(data,rowIndex,columnindex);
 
     for(int i = rowIndex-1; i>=0; --i) {
-        qDebug()<<"inside func";
         model->setData(model->index(i,columnindex),data);
     }
 }
 
 void GroupsView::fillDown()
 {
-    qDebug()<<"GroupsView::fillDown";
     int columnindex = 0;
     int rowIndex = 0;
     QVariant data;

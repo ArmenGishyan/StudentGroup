@@ -26,13 +26,15 @@ CentralWidget::CentralWidget(QWidget* parent): QWidget (parent)
     createWidgets();
     addWidgetToLayout();
     setLayout(m_grLay);
+    QDialog dil(this);
+
+    dil.show();
 }
 
 void CentralWidget::createWidgets()
 {
     QSet<QString> groups = StudentGroupDB::getGroupNames();
     auto it = groups.begin();
-    qDebug()<<"createGroupBoxes";
     while(it != groups.end()) {
         QSqlTableModel* tablemodel = new QSqlTableModel(this,StudentGroupDB::getDatabase());
         tablemodel->setEditStrategy(QSqlTableModel::OnManualSubmit);
@@ -41,12 +43,10 @@ void CentralWidget::createWidgets()
         tablemodel->select();
         GroupsView* item = new GroupsView(tablemodel,*it,this);
 
-        bool success =  connect(item, &GroupsView::passCurrentView, this, &CentralWidget::throwCurrentView);
-        qDebug()<<"item "<<success;
+        connect(item, &GroupsView::passCurrentView, this, &CentralWidget::throwCurrentView);
         m_widgets.append(item);
         ++it;
     }
-
 }
 
 bool CentralWidget::contains(const GroupsView* item) const
@@ -74,8 +74,18 @@ void CentralWidget::addWidgetToLayout()
 
 void CentralWidget::throwCurrentView(GroupsView* view)
 {
-    qDebug()<<"throw Current View";
     emit passView(view);
+}
+
+void CentralWidget::showEvent(QShowEvent*)
+{
+     for(int i=0;i<m_widgets.size();++i){
+         if(!m_widgets[i]->isVisible()) {
+             m_widgets[i]->setVisible(true);
+         }
+     }
+
+     addWidgetToLayout();
 }
 
 MainWindow::MainWindow(QWidget *parent) : QWidget(parent), m_currentView(nullptr), m_admin(nullptr)
@@ -86,12 +96,12 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent), m_currentView(nullptr
     m_currentView = new GroupsView;
     m_centralWidget = new CentralWidget(this);
     connect(m_centralWidget, SIGNAL(passView(GroupsView*)), this, SLOT(setCurrentView(GroupsView*)));
-    qDebug()<<"vndfjvk---------vdvnd"<<connect(menu, &HeaderMenu::findStudent,this, &MainWindow::setCurrentView);
+    connect(menu, &HeaderMenu::findStudent,this, &MainWindow::setCurrentView);
 
     setMinimumWidth(1200);
     setMinimumHeight(800);
 
-    qDebug()<<"infooooooooooooooooo"<<connect(menu->getHomeAction(), SIGNAL(triggered(bool)), this, SLOT(goHome()));
+    connect(menu->getHomeAction(), SIGNAL(triggered(bool)), this, SLOT(goHome()));
 
     connect(this, SIGNAL(currentViewChanged(bool)), this, SLOT(handleViewChange(bool)));
     g_mainLayout = new QGridLayout;
@@ -103,12 +113,11 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent), m_currentView(nullptr
     g_mainLayout->addWidget(m_centralWidget,1,0,20,30);
     g_mainLayout->addWidget(m_currentView,1,0,20,30);
     handleViewChange(false);
+    setWindowTitle("Student's Group");
 }
-
 
 void MainWindow::adminAveliable(bool t)
 {
-   qDebug()<<"MainWindow::adminAveliable";
    emit adminLogines(t);
 }
 
@@ -120,8 +129,7 @@ void MainWindow::createToolbar()
    QPixmap addStudent("C://Users//agishyan//Desktop//studentGroupIcons//addstudent.png");
    QIcon addIcon("C://Users//agishyan//Desktop//studentGroupIcons//addstudent.png");
    QAction* m_addStud = new QAction(addIcon,"Add Student");
-   bool success = connect(m_addStud, SIGNAL(triggered(bool)), this, SLOT(addStudent(bool)));
-   qDebug()<<"add Student"<<success;
+   connect(m_addStud, SIGNAL(triggered(bool)), this, SLOT(addStudent(bool)));
    m_toolbar->addAction(m_addStud);
 
    QPixmap pixremove("C://Users//agishyan//Desktop//studentGroupIcons//removestudent.png");
@@ -154,16 +162,12 @@ void MainWindow::createToolbar()
    QAction* home = new QAction(homeIcon,"Home");
    m_toolbar->addAction(home);
 
-   qDebug()<<"-----------Home"<<connect(home, SIGNAL(triggered()), this, SLOT(goHome()));
-  // QPixmap change("C://Users//agishyan//Desktop//studentGroupIcons//workshop-icon.png");
-  // QIcon   changeIcon(change);
-  // QAction* m_change = new QAction(changeIcon,"sort descending order");
-  // m_toolbar->addAction(m_change);
+   connect(home, SIGNAL(triggered()), this, SLOT(goHome()));
 
    QPixmap SaveChanges("C://Users//agishyan//Desktop//studentGroupIcons//save.png");
    QIcon   saveCh(SaveChanges);
    QAction* saveChanges = new QAction(saveCh,"Save Changes");
-   qDebug()<<"save changes result"<<connect(saveChanges,SIGNAL(triggered()), this, SLOT(saveChanges()));
+   connect(saveChanges,SIGNAL(triggered()), this, SLOT(saveChanges()));
    m_toolbar->addAction(saveChanges);
 
    QPixmap revertChanges("C://Users//agishyan//Desktop//studentGroupIcons//revert.png");
@@ -195,15 +199,13 @@ void MainWindow::createToolbar()
    QAction* emailAction = new QAction(emailIcon,"Write Email");
    m_toolbar->addAction(emailAction);
 
-   qDebug()<<"revert changes result"<<connect(revert,SIGNAL(triggered(bool)), this, SLOT(revertChanges(bool)));
+   connect(revert,SIGNAL(triggered(bool)), this, SLOT(revertChanges(bool)));
    m_toolbar->setStyleSheet("background-color : #32488d");
    QList<QAction*> act = m_toolbar->actions();
-   qDebug()<<"action size is "<<act.size();
 }
 
 void MainWindow::setCurrentView(GroupsView* view)
 {
-    qDebug()<<"current view";
     if(view) {
         if(!m_centralWidget->contains(m_currentView)) {
             delete m_currentView;
@@ -223,6 +225,7 @@ void MainWindow::saveChanges()
         m_currentView->saveChanges();
     }
 }
+
 void MainWindow::addStudent(bool t)
 {
     if(m_currentView) {
@@ -236,12 +239,14 @@ void MainWindow::removeStudent()
         m_currentView->removeStudent();
     }
 }
+
 void MainWindow::revertChanges(bool t)
 {
     if(m_currentView) {
         m_currentView->revertChanges(t);
     }
 }
+
 void MainWindow::writeAsCSV()
 {
     QAction* action = dynamic_cast<QAction*>(QObject::sender());
@@ -255,25 +260,26 @@ void MainWindow::writeAsCSV()
         }
     }
 }
+
 void MainWindow::setAsceSort()
 {
     if(m_currentView) {
         m_currentView->setAsceSort();
     }
 }
+
 void MainWindow::setDescSort()
 {
     if(m_currentView) {
         m_currentView->setDescSort();
     }
 }
+
 void MainWindow::adminSignIn(Admin* admin)
 {
-    qDebug()<<"adminSignIn";
     delete m_admin;
     m_admin = admin;
     if(m_admin != nullptr) {
-        //m_toolbar->setEnabled(true);
         hideUnhideTools(true);
         if(m_currentView != nullptr) {
             m_currentView->setEditRole(
@@ -281,43 +287,29 @@ void MainWindow::adminSignIn(Admin* admin)
         }
     } else {
         hideUnhideTools(false);
-        //m_toolbar->setDisabled(false);
     }
 }
 
 void MainWindow::goHome()
 {
-    qDebug()<<"goHome";
    handleViewChange(false);
 }
 void MainWindow::handleViewChange(bool t)
 {
-        qDebug()<<"inside else"<< t;
     if(t) {
-
-        qDebug()<<"inside if";
-        //m_toolbar->show();
         m_currentView->show();
         if(m_admin != nullptr) {
             m_currentView->setEditRole(
                         (QAbstractItemView::EditTrigger::DoubleClicked | QAbstractItemView::EditTrigger::EditKeyPressed));
-            //m_toolbar->setEnabled(true);
-            hideUnhideTools(true);
-        } else {
-            hideUnhideTools(false);
-             //m_toolbar->setEnabled(false);
         }
+
         g_mainLayout->addWidget(m_currentView,1,0,20,30);
         m_centralWidget->hide();
-    } else {
-        qDebug()<<"inside else";
-        if(m_currentView) {
-            qDebug()<<" != nullptr";
-           m_currentView->hide();
 
+    } else {
+        if(m_currentView) {
+           m_currentView->hide();
         }
-        hideUnhideTools(false);
-        //m_toolbar->hide();
         g_mainLayout->addWidget(m_centralWidget,1,0,20,30);
         m_centralWidget->show();
     }
@@ -325,7 +317,6 @@ void MainWindow::handleViewChange(bool t)
 
 void MainWindow::fillDown()
 {
-    qDebug()<<"MainWindow::fillDown";
     if(m_currentView) {
         m_currentView->fillDown();
     }
@@ -333,7 +324,6 @@ void MainWindow::fillDown()
 
 void MainWindow::fillUp()
 {
-    qDebug()<<"MainWindow::fillup";
     if(m_currentView) {
         m_currentView->fillUp();
     }
@@ -349,7 +339,3 @@ void MainWindow::hideUnhideTools(bool t)
     }
 }
 
-MainWindow::~MainWindow()
-{
-    qDebug()<<"Main Window destructor";
-}

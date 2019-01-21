@@ -1,16 +1,11 @@
 #ifndef ADMINDBOX_H
 #define ADMINDBOX_H
 
-#include <QObject>
-#include <QWidget>
 #include <QDialog>
-#include <QLineEdit>
-#include <QDebug>
 
 class QPixmap;
-
-//enum class Gender : unsigned int;
-//enum class Accessibility : unsigned int;
+class QWidget;
+class QLineEdit;
 
 class Admin
 {

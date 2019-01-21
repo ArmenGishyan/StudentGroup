@@ -12,10 +12,11 @@ class LineEditIcon : public QLineEdit
 
 public:
     LineEditIcon(const QIcon icon, QWidget *parent = Q_NULLPTR);
-    ~LineEditIcon();
     void setIcon(QIcon icon);
+
 protected:
     virtual void paintEvent(QPaintEvent *event);
+
 private:
     QIcon m_icon;
 };

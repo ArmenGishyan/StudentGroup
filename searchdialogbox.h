@@ -1,8 +1,6 @@
 #ifndef SEARCHDIALOGBOX_H
 #define SEARCHDIALOGBOX_H
 
-#include <QObject>
-#include <QWidget>
 #include <QSpinBox>
 #include <QSlider>
 #include <QLineEdit>
@@ -54,7 +52,6 @@ class SearchDialogBox : public QWidget
     Q_OBJECT
 public:
     SearchDialogBox(QWidget* parrent = nullptr);
-    virtual ~SearchDialogBox() = default;
     bool eventFilter(QObject *obj, QEvent* e) override;
     void setGroupBoxValue(const QSet<QString> value);
 

@@ -8,10 +8,6 @@ LineEditIcon::LineEditIcon(const QIcon icon, QWidget *parent)
     setClearButtonEnabled(true);
 }
 
-LineEditIcon::~LineEditIcon()
-{
-}
-
 void LineEditIcon::setIcon(QIcon icon)
 {
     m_icon = icon;

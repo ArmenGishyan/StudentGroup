@@ -1,16 +1,7 @@
-#include "headermenu.h"
 #include <QIcon>
 #include <QAction>
-#include <QMenu>
-#include <QGridLayout>
 #include <QHBoxLayout>
-#include <QMenuBar>
-#include <QSpacerItem>
-#include <QWidgetAction>
-#include <QLineEdit>
-#include <QObject>
 #include <QDebug>
-#include <QLabel>
 #include <QPushButton>
 #include <QStringList>
 #include <QMessageBox>
@@ -18,11 +9,10 @@
 #include <QPixmap>
 #include <QPainter>
 #include <QToolButton>
+#include <QMenu>
 #include <QToolBar>
-#include <QKeySequence>
-#include <QShortcut>
-#include <memory>
 
+#include "headermenu.h"
 #include "searchdialogbox.h"
 #include "admindbox.h"
 #include "lineediticon.h"
@@ -49,22 +39,20 @@ HeaderMenu::HeaderMenu(QWidget *parent) : QWidget(parent),m_adminOptions(nullptr
 
    menuIcon.paint(painter,0,0,150,150);
 
-  Admin admin;
-  emit adminChanged(&admin);
-  m_menu = new QMenu("Menu", toolbar);
-  QToolButton* toolButton = new QToolButton();
-  toolButton->setIcon(menuIcon);
-  toolButton->setMenu(m_menu);
-  toolButton->setPopupMode(QToolButton::InstantPopup);
-  toolbar->addWidget(toolButton);
-  toolbar->addWidget(m_adminOptions);
-
+   Admin admin;
+   emit adminChanged(&admin);
+   m_menu = new QMenu("Menu", toolbar);
+   QToolButton* toolButton = new QToolButton();
+   toolButton->setIcon(menuIcon);
+   toolButton->setMenu(m_menu);
+   toolButton->setPopupMode(QToolButton::InstantPopup);
+   toolbar->addWidget(toolButton);
+   toolbar->addWidget(m_adminOptions);
 
    m_menu->setIcon(menuIcon);
    homeAction = new QAction(homeIcon,"Home");
    QAction* adminAction = new QAction(adminIcon,"Admin");
    QAction* searchAction = new QAction(searchIcon,"Search Students");
-
 
    m_menu->addAction(homeAction);
    m_menu->addAction(adminAction);
@@ -94,7 +82,6 @@ HeaderMenu::HeaderMenu(QWidget *parent) : QWidget(parent),m_adminOptions(nullptr
    toolbar->setStyleSheet("background-color : #32488d");
    setFixedHeight(40);
    setLayout(menuSearch);
-
 }
 
 bool HeaderMenu::validateSearchString(QStringList str)
@@ -112,8 +99,6 @@ void HeaderMenu::findStudents()
     if(searchstr.empty()){
         return;
     };
-    qDebug()<<"search string"<<searchstr;
-    qDebug()<<"HeaderMenu::findStudents";
 
     QSqlTableModel* model = new QSqlTableModel(this,StudentGroupDB::getDatabase());
     model->setTable("Students");
@@ -147,9 +132,6 @@ void HeaderMenu::findStudents()
 
     GroupsView* student = new GroupsView(model,"Student");
     emit findStudent(student);
-    qDebug()<<"Find Student success"<<model->select();
-
-
 }
 void HeaderMenu::adminChanged(Admin* admin)
 {
@@ -169,7 +151,7 @@ void HeaderMenu::adminChanged(Admin* admin)
 
     m_adminMenu->addAction(new QAction("Name : " + admin->getName()));
     m_adminMenu->addAction(new QAction("Surname : " + admin->getSurname()));
-    //m_adminMenu->addAction(new QAction("Accessibility : " + QString::number(admin->getAccess())));
+    m_adminMenu->addAction(new QAction("Accessibility : " + QString::number(static_cast<int>(admin->getAccess()))));
 
     m_adminOptions->setIcon(admin->getPicture());
     m_adminOptions->setMenu(m_adminMenu);
@@ -178,7 +160,6 @@ void HeaderMenu::adminChanged(Admin* admin)
 
 HeaderMenu::~HeaderMenu()
 {
-    qDebug()<<"HeaderMenu ------------------------- destructor";
     delete m_searchBox;
     delete m_adminbox;
 }

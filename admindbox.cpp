@@ -18,7 +18,7 @@
 
 Admin::Admin(QString name, QString surname, Admin::Gender gen, Admin::Accessibility access, QPixmap pic)
     :m_name(name), m_surname(surname),
-     m_gender(gen), m_access(access), m_picture(pic)
+     m_gender(gen),m_access(access), m_picture(pic)
 {}
 
 AdminDBox::AdminDBox(QWidget* parrent):QDialog (parrent)
@@ -30,7 +30,7 @@ AdminDBox::AdminDBox(QWidget* parrent):QDialog (parrent)
     setMinimumSize(200,100);
     QPushButton* signIn = new QPushButton("Sign In", this);
     QPushButton* cencel = new QPushButton("Cancel", this);
-    qDebug()<<"conected = "<<connect(signIn, &QPushButton::clicked, this, &AdminDBox::replaceAdmin);
+    connect(signIn, &QPushButton::clicked, this, &AdminDBox::replaceAdmin);
     connect(cencel, SIGNAL(clicked()), this, SLOT(hide()));
     hsearchSignIn->addWidget(cencel);
     hsearchSignIn->addWidget(signIn);

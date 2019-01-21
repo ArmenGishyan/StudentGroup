@@ -4,13 +4,10 @@
 #include <QWidget>
 #include <QPushButton>
 #include <QAbstractItemView>
-#include "chosecitydelegate.h"
 
 class QTableView;
 class QSqlTableModel;
-class QToolBar;
-class GroupsView;
-
+class QPushButton;
 
 class GroupsView : public QWidget
 {
@@ -19,7 +16,6 @@ public:
     explicit GroupsView(QSqlTableModel* model = nullptr, QString Name = "None",
                                                 QWidget *parent = nullptr,
                                                 QAbstractItemView::EditTriggers editRole = QAbstractItemView::EditTrigger::NoEditTriggers);
-
 
     void setColumnHidden(int column,bool hide);
     void setEditRole(QAbstractItemView::EditTriggers editRole);

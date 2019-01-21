@@ -18,6 +18,7 @@ public:
     QSqlTableModel* findStudent(SearchResult sReault);
     static QSqlDatabase getDatabase();
     static QStringList getRegions();
+
 private:
     static QSqlDatabase m_db;
 };

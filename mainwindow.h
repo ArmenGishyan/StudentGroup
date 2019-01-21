@@ -26,25 +26,11 @@ class CentralWidget : public QWidget
     Q_OBJECT
 public:
     CentralWidget(QWidget* parent = nullptr);
-
     void createWidgets();
     void addWidgetToLayout();
     bool contains(const GroupsView* view) const;
-    void showEvent(QShowEvent *event)
-    {
-        qDebug()<<"showEvent";
-       //addWidgetToLayout();
-        for(int i=0;i<m_widgets.size();++i){
-            if(!m_widgets[i]->isVisible()) {
-                qDebug()<<"inside if show event";
-               // m_widgets[i]->resize(m_widgets[i-1]->size());
-                m_widgets[i]->setVisible(true);
-            }
-        }
+    void showEvent(QShowEvent *event);
 
-        addWidgetToLayout();
-
-    }
 signals:
     void passView(GroupsView*);
 
@@ -61,10 +47,8 @@ class MainWindow : public QWidget
     Q_OBJECT
 public:
     explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
     void createToolbar();
     void hideUnhideTools(bool);
-
 
 signals:
     void adminLogines(bool);
@@ -87,7 +71,6 @@ private slots:
     void goHome();
     void fillUp();
     void fillDown();
-
 
 private:
     QPushButton* m_search;

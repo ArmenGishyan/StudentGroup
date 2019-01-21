@@ -32,9 +32,7 @@ SOURCES += \
     groupsview.cpp \
     chosecitydelegate.cpp \
     headermenu.cpp \
-    quickmenu.cpp \
-    lineediticon.cpp \
-    emailwriter.cpp
+    lineediticon.cpp
 
 HEADERS += \
     studentgroupdb.h \
@@ -44,9 +42,7 @@ HEADERS += \
     groupsview.h \
     chosecitydelegate.h \
     headermenu.h \
-    quickmenu.h \
-    lineediticon.h \
-    emailwriter.h
+    lineediticon.h
 
 FORMS += \
         mainwindow.ui

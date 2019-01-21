@@ -20,7 +20,6 @@ QSqlDatabase StudentGroupDB::getDatabase()
     }
 }
 
-
 std::shared_ptr<QTableView> StudentGroupDB::getTable(const QString& tableName) const
 {
     QSqlTableModel *model = new QSqlTableModel(nullptr, getDatabase());
@@ -43,7 +42,7 @@ QSet<QString> StudentGroupDB::getGroupNames()
     QSqlQuery query(getDatabase());
     QSet<QString> studentsGroupName;
     assert(query.exec("select GroupName from Students"));
-    qDebug()<<query.lastError();
+    assert(!query.lastError().isValid());
     while (query.next()) {
            QString str = query.value(0).toString();
            if(!str.isEmpty()) {
@@ -63,8 +62,8 @@ QSqlTableModel* StudentGroupDB::findStudent(SearchResult sResult)
     if(!sResult.surname.isEmpty()) {
         query.append(" and Surname = '"+sResult.surname+"'");
     }
-    qDebug()<<query;
-    qDebug()<<"Error"<<model->lastError();
+
+    assert(!model->lastError().isValid());
     model->setTable("Students");
     model->setFilter(query);
     model->select();

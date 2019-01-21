@@ -1,12 +1,12 @@
 #ifndef CHOSECITYDELEGATE_H
 #define CHOSECITYDELEGATE_H
 
-#include <QObject>
-#include <QWidget>
 #include <QItemDelegate>
 #include <QModelIndex>
 #include <QDate>
 
+class QObject;
+class QWidget;
 
 class ComboBoxDelegate : public QItemDelegate
 {

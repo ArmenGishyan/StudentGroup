@@ -1,12 +1,8 @@
 #ifndef HEADERMENU_H
 #define HEADERMENU_H
 
-#include <QObject>
-#include <QWidget>
 #include "studentgroupdb.h"
 
-
-class QLineEdit;
 class QLabel;
 class QMenu;
 class SearchDialogBox;
@@ -15,6 +11,7 @@ class LineEditIcon;
 class QPushButton;
 class GroupsView;
 class Admin;
+class QToolButton;
 
 class HeaderMenu : public QWidget
 {
@@ -46,6 +43,7 @@ public slots:
     }
 
     void adminChanged(Admin*);
+
 private:
     LineEditIcon* m_search;
     QToolButton* m_adminOptions;

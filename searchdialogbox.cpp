@@ -56,7 +56,6 @@ void SpinSliderWidget::setScore(const int value)
 
 void SpinSliderWidget::valueChanged(int score)
 {
-    std::cout<<"valueChanged"<<std::endl;
     emit scoreChanged(score);
 }
 
@@ -134,7 +133,6 @@ SearchDialogBox::SearchDialogBox(QWidget *parrent):QWidget(parrent)
     searchLayout->addWidget(spl);
     searchLayout->addLayout(groupNameLayout);
     searchLayout->addLayout(regionsLay);
-    QSpacerItem* item = new QSpacerItem(30,30);
     searchLayout->addWidget(spl);
     searchLayout->addLayout(actionBtLayout);
     setLayout(searchLayout);
@@ -158,7 +156,6 @@ bool SearchDialogBox::eventFilter(QObject* obj, QEvent* event)
     if (obj == m_cancel) {
         if (event->type() == QEvent::MouseButtonPress) {
             this->hide();
-            qDebug()<<"in cancel";
             return true;
         }
     }
@@ -175,47 +172,57 @@ void SearchDialogBox::setGroupBoxValue(const QSet<QString> value)
 
 void SearchDialogBox::searchStudent()
 {
-    qDebug()<<"search Students";
     SearchResult result = getSreachResult();
-    QString searchStr;
+    QStringList searchStr;
     if(!result.name.isEmpty()) {
         searchStr.append("Name = '"+result.name + "'");
-    }
-
-    if(!searchStr.isEmpty()) {
         searchStr.append(" and ");
     }
 
     if(!result.surname.isEmpty()) {
-        searchStr.append(" and Surname = '"+result.surname + "'");
+        searchStr.append("Surname = '"+result.surname + "'");
+        searchStr.append(" and ");
     }
 
     if(!m_withScores->isChecked()) {
-        qDebug()<<"----------------------checked";
-        searchStr.append(" and AverageScore <= '" + QString::number(result.highScore) + "'");
-        searchStr.append(" and AverageScore >= '" + QString::number(result.lowScore) + "'");
+        searchStr.append("AverageScore <= '" + QString::number(result.highScore) + "'");
+        searchStr.append("and AverageScore >= '" + QString::number(result.lowScore) + "'");
+        searchStr.append(" and ");
     }
 
     QString str;
     if(!m_jobexperience->button(2)->isChecked()) {
-       if(m_jobexperience->button(1)->isChecked()) {
-           str.append("WorkedOrNot = '"+m_jobexperience->button(0)->text()+"'");
+       if(m_jobexperience->button(0)->isChecked()) {
+           searchStr.append("WorkedOrNot = '"+m_jobexperience->button(0)->text()+"'");
+           searchStr.append(" and ");
        } else if(m_jobexperience->button(1)->isChecked()) {
            str.append("WorkedOrNot = '"+m_jobexperience->button(1)->text()+"'");
+           searchStr.append(" and ");
        }
     }
 
-    if(!searchStr.isEmpty() && !str.isEmpty()) {
+    if(m_regionsBox->currentText() != "All") {
+        searchStr.append("Address = '"+m_regionsBox->currentText()+"'");
         searchStr.append(" and ");
     }
-    qDebug()<<"STR = "<<str;
-    searchStr.append(str);
+
+    if(m_groupName->currentText() != "All") {
+        searchStr.append("GroupName = '"+m_groupName->currentText()+"'");
+        searchStr.append(" and ");
+    }
+
+    if(m_regionsBox->currentText() != "All") {
+        searchStr.append("Address = '" + m_regionsBox->currentText()+"'");
+        searchStr.append(" and ");
+    }
+    searchStr.pop_back();
     QSqlTableModel* model = new QSqlTableModel(nullptr,StudentGroupDB::getDatabase());
-    qDebug()<<"search str"<<searchStr;
+    searchStr.join(" ");
+
     model->setTable("Students");
-    model->setFilter(searchStr);
+    model->setFilter(searchStr.join(" "));
     model->select();
-    qDebug()<<"error"<<model->lastError();
+    model->lastError();
 
     GroupsView* view = new GroupsView(model,"Search Result");
     emit throwView(view);
@@ -224,7 +231,7 @@ SearchResult SearchDialogBox::getSreachResult() const
 {
     SearchResult sResult;
     sResult.name = m_nameBox->text();
-    qDebug()<<"sResult"<<sResult.name;
+    sResult.name;
     sResult.surname = m_surnameBox->text();
     sResult.lowScore = m_lowsScore->getScore();
     sResult.highScore = m_highScore->getScore();
