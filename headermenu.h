@@ -2,6 +2,8 @@
 #define HEADERMENU_H
 
 #include "studentgroupdb.h"
+#include <QEvent>
+#include <QHideEvent>
 
 class QLabel;
 class QMenu;
@@ -21,6 +23,26 @@ public:
     ~HeaderMenu();
     bool validateSearchString(QStringList);
     void adminOption();
+    void showEvent(QShowEvent* ev)
+    {
+        qDebug()<<"show event";
+        qDebug()<<"spontaneous "<<ev->spontaneous();
+        QWidget::showEvent(ev);
+    }
+
+    void hideEvent(QHideEvent* ev)
+    {
+        qDebug()<<"hide event";
+        qDebug()<<"spontaneous "<<ev->spontaneous();
+        QWidget::hideEvent(ev);
+
+    }
+
+    void closeEvent(QCloseEvent* ev)
+    {
+        qDebug()<<"close event";
+        QWidget::closeEvent(ev);
+    }
 
 signals:
     void findStudent(GroupsView*);
@@ -41,6 +63,7 @@ public slots:
     {
        return homeAction;
     }
+
 
     void adminChanged(Admin*);
 

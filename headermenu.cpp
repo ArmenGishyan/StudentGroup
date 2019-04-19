@@ -22,11 +22,11 @@
 HeaderMenu::HeaderMenu(QWidget *parent) : QWidget(parent),m_adminOptions(nullptr)
 {
    QToolBar* toolbar = new QToolBar(this);
-   QIcon   menuIcon("C://Users//agishyan//Desktop//studentGroupIcons//menu.png");
-   QIcon   homeIcon("C://Users//agishyan//Desktop//studentGroupIcons//menuhome.png");
-   QIcon   adminIcon("C://Users//agishyan//Desktop//studentGroupIcons//adminmenu.png");
-   QIcon   searchIcon("C://Users//agishyan//Desktop//studentGroupIcons//search.png");
-   QIcon   smallSearch("C://Users//agishyan//Desktop//studentGroupIcons//searchsmall.png");
+   QIcon      menuIcon(":/Icons/menu.png");
+   QIcon      homeIcon(":/Icons/menuhome.png");
+   QIcon     adminIcon(":/Icons/adminmenu.png");
+   QIcon    searchIcon(":/Icons/search.png");
+   QIcon   smallSearch(":/Icons/searchsmall.png");
 
    m_search = new LineEditIcon(smallSearch,this);
    m_search->setPlaceholderText("Name Surname");

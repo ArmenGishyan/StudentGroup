@@ -17,9 +17,12 @@
 #include <QTableWidget>
 #include <QSpacerItem>
 #include <QAction>
+#include <QMessageBox>
+#include <QDialogButtonBox>
 
 #include "headermenu.h"
 #include "quickmenu.h"
+
 CentralWidget::CentralWidget(QWidget* parent): QWidget (parent)
 {
     m_grLay = new QGridLayout;
@@ -114,6 +117,8 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent), m_currentView(nullptr
     g_mainLayout->addWidget(m_currentView,1,0,20,30);
     handleViewChange(false);
     setWindowTitle("Student's Group");
+    QMessageBox::warning(this,"Error","Happen",QDialogButtonBox::Ok,QDialogButtonBox::Cancel);
+
 }
 
 void MainWindow::adminAveliable(bool t)
@@ -126,26 +131,26 @@ void MainWindow::createToolbar()
    m_toolbar = new QToolBar(this);
    m_toolbar->setFixedHeight(40);
 
-   QPixmap addStudent("C://Users//agishyan//Desktop//studentGroupIcons//addstudent.png");
-   QIcon addIcon("C://Users//agishyan//Desktop//studentGroupIcons//addstudent.png");
+   QPixmap addStudent(":/Icons/addstudent.png");
+   QIcon addIcon(":/Icons/addstudent.png");
    QAction* m_addStud = new QAction(addIcon,"Add Student");
    connect(m_addStud, SIGNAL(triggered(bool)), this, SLOT(addStudent(bool)));
    m_toolbar->addAction(m_addStud);
 
-   QPixmap pixremove("C://Users//agishyan//Desktop//studentGroupIcons//removestudent.png");
+   QPixmap pixremove(":/Icons/removestudent.png");
    QIcon removeStudent(pixremove);
    QAction* m_removeStud = new QAction(removeStudent,"Remove Student");
    m_toolbar->addAction(m_removeStud);
    connect(m_removeStud, SIGNAL(triggered()), this , SLOT(removeStudent()));
 
-   QPixmap pixDescSort("C://Users//agishyan//Desktop//studentGroupIcons//asce_sort.png");
+   QPixmap pixDescSort(":/Icons/asce_sort.png");
    QIcon   descIcon(pixDescSort);
    QAction* m_descSort = new QAction(descIcon,"sort descending order");
    connect(m_descSort, SIGNAL(triggered()), this, SLOT(setDescSort()));
    m_toolbar->addAction(m_descSort);
    m_descSort->setCheckable(true);
 
-   QPixmap pixAsceSort("C://Users//agishyan//Desktop//studentGroupIcons//desc_sort.png");
+   QPixmap pixAsceSort(":/Icons/desc_sort.png");
    QIcon   asceIcon(pixAsceSort);
    QAction* m_asceSort = new QAction(asceIcon,"sort ascending order");
    connect(m_asceSort, SIGNAL(triggered()), this, SLOT(setAsceSort()));
@@ -157,44 +162,44 @@ void MainWindow::createToolbar()
    sortActions->addAction(m_descSort);
 
 
-   QPixmap pixHome("C://Users//agishyan//Desktop//studentGroupIcons//Home.png");
+   QPixmap pixHome(":/Icons/Home.png");
    QIcon   homeIcon(pixHome);
    QAction* home = new QAction(homeIcon,"Home");
    m_toolbar->addAction(home);
 
    connect(home, SIGNAL(triggered()), this, SLOT(goHome()));
 
-   QPixmap SaveChanges("C://Users//agishyan//Desktop//studentGroupIcons//save.png");
+   QPixmap SaveChanges(":/Icons/save.png");
    QIcon   saveCh(SaveChanges);
    QAction* saveChanges = new QAction(saveCh,"Save Changes");
    connect(saveChanges,SIGNAL(triggered()), this, SLOT(saveChanges()));
    m_toolbar->addAction(saveChanges);
 
-   QPixmap revertChanges("C://Users//agishyan//Desktop//studentGroupIcons//revert.png");
+   QPixmap revertChanges(":/Icons/revert.png");
    QIcon   revertCh(revertChanges);
    QAction* revert = new QAction(revertCh,"Revert all Unsaved Changes");
    m_toolbar->addAction(revert);
 
-   QPixmap csvIcon("C://Users//agishyan//Desktop//studentGroupIcons//csvicon.png");
+   QPixmap csvIcon(":/Icons/csvicon.png");
    QIcon   csv(csvIcon);
    QAction* csvAction = new QAction(csv,"Extract as CSV");
    m_toolbar->addAction(csvAction);
    connect(csvAction, SIGNAL(triggered()), this, SLOT(writeAsCSV()));
 
 
-   QPixmap fillup("C://Users//agishyan//Desktop//studentGroupIcons//fillup.png");
+   QPixmap fillup(":/Icons/fillup.png");
    QIcon   fillupIcon(fillup);
    QAction* fillupAction = new QAction(fillupIcon,"Fill Up Column");
    m_toolbar->addAction(fillupAction);
    connect(fillupAction, SIGNAL(triggered()), this, SLOT(fillUp()));
 
-   QPixmap filldown("C://Users//agishyan//Desktop//studentGroupIcons//filldown.png");
+   QPixmap filldown(":/Icons/filldown.png");
    QIcon   filldownIcon(filldown);
    QAction* filldownAction = new QAction(filldownIcon,"Fill Up Column");
    m_toolbar->addAction(filldownAction);
    connect(filldownAction, SIGNAL(triggered()), this, SLOT(fillDown()));
 
-   QPixmap emailIcon("C://Users//agishyan//Desktop//studentGroupIcons/emailIcon.png");
+   QPixmap emailIcon(":/Icons/emailIcon.png");
    QIcon   eIcon(emailIcon);
    QAction* emailAction = new QAction(emailIcon,"Write Email");
    m_toolbar->addAction(emailAction);

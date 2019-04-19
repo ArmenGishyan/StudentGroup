@@ -1,0 +1,22 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+  <file>./Icons/menu.png</file>
+  <file>./Icons/menuhome.png</file>
+  <file>./Icons/adminmenu.png</file>
+  <file>./Icons/search.png</file>
+  <file>./Icons/addstudent.png</file>
+  <file>./Icons/removestudent.png</file>
+  <file>./Icons/asce_sort.png</file>
+  <file>./Icons/desc_sort.png</file>
+  <file>./Icons/Home.png</file>
+  <file>./Icons/save.png</file>
+  <file>./Icons/revert.png</file>
+  <file>./Icons/csvicon.png</file>
+  <file>./Icons/filldown.png</file>
+  <file>./Icons/emailIcon.png</file>
+  <file>./Icons/fillup.png</file>
+  <file>./Icons/filldown.png</file>
+  <file>./Db/studentgroup.db</file>	
+</qresource>
+</RCC>
+
